@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<meta name="theme-color" content="#F5F0FB"/>
+<title>StudyBuddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600&display=swap" rel="stylesheet"/>
+<style>
+/* =====================================================================
+   1. TOKENS
+   ===================================================================== */
+:root{
+  --bg:#F5F0FB;
+  --ink:#1F1A3D;
+  --ink-2:#4A4568;
+  --ink-3:#5B5579;
+  --line:rgba(58,40,120,.11);
+  --line-2:rgba(58,40,120,.2);
+  --surface:rgba(255,255,255,.74);
+  --surface-2:rgba(255,255,255,.92);
+  --surface-3:rgba(255,255,255,.5);
+
+  --a:#6A45D9; --a-deep:#4C2DB2; --a-soft:#EEE8FF; --a-mid:#B9A5FF; --a-tint:#F7F3FF;
+  --b:#C22A63; --b-deep:#A11E50; --b-soft:#FFE6EF; --b-mid:#FF9FC1; --b-tint:#FFF5F9;
+  --mint:#0B7A61; --mint-deep:#08684F; --mint-soft:#DAF4EA;
+  --sky:#2A6CC0; --sky-soft:#E0EDFF;
+  --gold:#E3AE3F; --gold-ink:#7E5300; --gold-soft:#FFF2D2;
+  --peach:#FFE9DA;
+  --danger:#B92C3B; --danger-soft:#FFE8EA;
+
+  --font:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --display:'Unbounded','Manrope',system-ui,sans-serif;
+
+  --r-lg:22px; --r-md:14px; --r-sm:10px;
+  --ease:cubic-bezier(.23,1,.32,1);
+  --ease-io:cubic-bezier(.65,0,.35,1);
+  --shadow:0 1px 0 rgba(255,255,255,.95) inset,0 18px 40px -26px rgba(60,36,150,.38),0 2px 8px -3px rgba(60,36,150,.10);
+  --shadow-sm:0 1px 0 rgba(255,255,255,.9) inset,0 6px 16px -10px rgba(60,36,150,.32);
+
+  --z-decor:0; --z-content:1; --z-menu:30; --z-toast:50;
+  --page-x:clamp(12px,4vw,28px);
+}
+/* identity themes: "me" = logged-in person, "u" = any person-scoped element */
+.theme-a{--me:var(--a);--me-deep:var(--a-deep);--me-soft:var(--a-soft);--me-mid:var(--a-mid);--me-tint:var(--a-tint)}
+.theme-b{--me:var(--b);--me-deep:var(--b-deep);--me-soft:var(--b-soft);--me-mid:var(--b-mid);--me-tint:var(--b-tint)}
+.u-a{--u:var(--a);--u-deep:var(--a-deep);--u-soft:var(--a-soft);--u-mid:var(--a-mid);--u-tint:var(--a-tint);--u-c1:#D5C2FF;--u-c2:#E6DAFF;--u-c3:#F6D6EC}
+.u-b{--u:var(--b);--u-deep:var(--b-deep);--u-soft:var(--b-soft);--u-mid:var(--b-mid);--u-tint:var(--b-tint);--u-c1:#FFC4D9;--u-c2:#FFDCE8;--u-c3:#E6D8FF}
+
+/* =====================================================================
+   2. BASE
+   ===================================================================== */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font:500 15px/1.5 var(--font);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,p,ol,ul,figure{margin:0}
+ol,ul{padding:0;list-style:none}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation}
+button:disabled{cursor:not-allowed}
+[hidden]{display:none !important}
+:focus-visible{outline:2.5px solid var(--sky);outline-offset:2px;border-radius:8px}
+.num{font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* =====================================================================
+   3. SKY (decorative background layer)
+   ===================================================================== */
+.sky{position:fixed;inset:0;z-index:var(--z-decor);pointer-events:none;overflow:hidden;
+  background:
+    radial-gradient(55% 38% at 0% 0%,#E6DBFF 0%,rgba(230,219,255,0) 70%),
+    radial-gradient(48% 36% at 100% 4%,#FFDDEA 0%,rgba(255,221,234,0) 70%),
+    radial-gradient(60% 42% at 88% 100%,#D6F2E8 0%,rgba(214,242,232,0) 70%),
+    radial-gradient(50% 36% at 0% 96%,#FFE7D6 0%,rgba(255,231,214,0) 70%),
+    radial-gradient(40% 30% at 50% 55%,#E3EEFF 0%,rgba(227,238,255,0) 70%);}
+.sky svg{position:absolute;opacity:.9}
+.sky .stars{inset:0;width:100%;height:100%}
+.sky .orbit-deco{right:-140px;top:120px;width:520px;height:520px;opacity:.55}
+.sky .growth-deco{left:-40px;bottom:-30px;width:640px;height:260px;opacity:.5}
+@media (max-width:700px){.sky .orbit-deco{width:340px;height:340px;right:-170px;top:60px;opacity:.35}.sky .growth-deco{display:none}}
+
+/* =====================================================================
+   4. SCREENS
+   ===================================================================== */
+.screen{position:relative;z-index:var(--z-content);display:none;min-height:100vh;min-height:100dvh}
+.screen.is-active{display:block}
+#screen-loading.is-active,#screen-error.is-active{display:grid;place-items:center;padding:24px}
+.boot{text-align:center;display:grid;gap:14px;justify-items:center}
+.boot-orbit{width:64px;height:64px}
+.boot-orbit .moon{transform-origin:32px 32px;animation:spin 1.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.boot p{color:var(--ink-2);font-weight:600}
+.fatal{max-width:440px;background:var(--surface-2);border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow);display:grid;gap:12px}
+.fatal h1{font:600 18px/1.3 var(--display)}
+.fatal p{color:var(--ink-2)}
+.fatal code{display:block;background:var(--danger-soft);color:var(--danger);border-radius:10px;padding:10px 12px;font:600 13px/1.45 ui-monospace,Menlo,monospace;word-break:break-word}
+
+/* =====================================================================
+   5. BUTTONS (shared)
+   ===================================================================== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 20px;border:0;border-radius:var(--r-md);
+  font-weight:700;font-size:15px;transition:transform .16s var(--ease),background-color .2s,box-shadow .2s,opacity .2s}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn-primary{background:var(--me);color:#fff;box-shadow:0 10px 22px -12px var(--me)}
+.btn-primary:disabled{opacity:.5}
+.btn-ghost{background:transparent;color:var(--ink-2);box-shadow:inset 0 0 0 1.5px var(--line-2)}
+.btn-ghost:hover{background:var(--surface-3)}
+.link{background:none;border:0;padding:6px 2px;color:var(--me-deep);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.chip{height:36px;padding:0 14px;border:0;border-radius:999px;background:var(--surface-2);color:var(--ink);font-weight:700;font-size:13px;box-shadow:var(--shadow-sm);transition:transform .16s var(--ease)}
+.chip:active{transform:scale(.96)}
+
+/* =====================================================================
+   6. AUTH (login + setup)
+   ===================================================================== */
+#screen-auth.is-active{display:grid;grid-template-rows:auto 1fr;min-height:100dvh}
+.auth-art{position:relative;padding:calc(env(safe-area-inset-top) + 18px) var(--page-x) 0;max-width:520px;width:100%;margin:0 auto}
+.auth-art svg{display:block;width:100%;height:auto;max-height:190px}
+.auth-brand{margin-top:-4px}
+.wordmark{font:600 22px/1 var(--display);letter-spacing:-.02em;color:var(--ink)}
+.auth-brand p{margin-top:6px;color:var(--ink-2);font-weight:600;font-size:13.5px;max-width:22ch}
+.auth-panel{width:100%;max-width:520px;margin:0 auto;padding:14px var(--page-x) calc(24px + env(safe-area-inset-bottom))}
+.auth-card{background:var(--surface);border-radius:26px;padding:22px 18px 18px;box-shadow:var(--shadow);display:grid;gap:18px}
+.auth-card h1{font:800 20px/1.2 var(--font);letter-spacing:-.01em}
+.auth-card .lead{color:var(--ink-2);font-size:14px;margin-top:4px}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.who-tile{display:flex;align-items:center;gap:10px;height:62px;padding:0 12px;border:0;border-radius:18px;background:var(--surface-2);
+  box-shadow:inset 0 0 0 1.5px var(--line);text-align:left;transition:box-shadow .2s,background-color .2s,transform .16s var(--ease)}
+.who-tile:active:not(:disabled){transform:scale(.97)}
+.who-tile .avatar{width:36px;height:36px;font-size:12.5px}
+.who-tile strong{display:block;font-size:15px;line-height:1.2}
+.who-tile[aria-pressed="true"]{background:var(--u-tint);box-shadow:inset 0 0 0 2px var(--u)}
+.who-tile:disabled:not([aria-pressed="true"]){opacity:.45}
+.field-label{display:block;font-weight:700;font-size:13.5px;color:var(--ink-2);margin-bottom:8px}
+.auth-msg{min-height:20px;font-size:13.5px;font-weight:600;color:var(--danger)}
+.auth-msg.is-ok{color:var(--mint-deep)}
+.auth-actions{display:grid;gap:10px}
+.auth-actions .btn{width:100%}
+.auth-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:var(--ink-3);font-size:12.5px;font-weight:600;padding:4px 4px 0}
+.auth-foot .dot{width:6px;height:6px;border-radius:50%;background:var(--mint);display:inline-block;margin-right:6px;vertical-align:middle}
+@media (min-width:900px){
+  #screen-auth.is-active{grid-template-rows:none;grid-template-columns:1.1fr 1fr;align-items:center;max-width:1100px;margin:0 auto;padding:40px}
+  .auth-art{max-width:none;padding:0}
+  .auth-art svg{max-height:none}
+  .auth-brand{margin-top:8px}
+  .wordmark.lg{font-size:34px}
+  .auth-brand p{font-size:15px}
+  .auth-panel{padding:0}
+  .auth-card{padding:30px 28px 24px}
+}
+
+/* PIN — one real input, four visual cells (robust on Android keyboards) */
+.pin{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:320px}
+.pin-cell{height:60px;border-radius:16px;background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--line-2);display:grid;place-items:center;
+  transition:box-shadow .18s,transform .18s var(--ease),background-color .18s}
+.pin-cell::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--ink);transform:scale(.4);opacity:0;transition:transform .2s var(--ease),opacity .15s}
+.pin-cell.is-filled::after{transform:scale(1);opacity:1}
+.pin-cell.is-active{box-shadow:inset 0 0 0 2px var(--me);background:#fff}
+.pin-cell.is-active:not(.is-filled)::before{content:"";width:2px;height:22px;background:var(--me);border-radius:2px;animation:caret 1s steps(1) infinite;grid-area:1/1}
+.pin-cell.is-active:not(.is-filled)::after{display:none}
+@keyframes caret{50%{opacity:0}}
+.pin input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;font-size:16px;letter-spacing:40px;caret-color:transparent;color:transparent;background:transparent;z-index:1}
+.pin.is-error .pin-cell{box-shadow:inset 0 0 0 2px var(--danger)}
+.pin.is-shake{animation:shake .38s var(--ease)}
+.pin.is-busy .pin-cell{animation:pulse 1s var(--ease-io) infinite}
+.pin.is-match .pin-cell{box-shadow:inset 0 0 0 2px var(--mint)}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+@keyframes pulse{50%{opacity:.55}}
+
+/* =====================================================================
+   7. APP SHELL
+   ===================================================================== */
+.shell{max-width:1120px;margin:0 auto;padding:0 var(--page-x) calc(28px + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 12px) 0 10px;position:relative}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1;background:none;border:0;padding:0;text-align:left}
+.brand-mark{width:34px;height:34px;flex:none}
+.brand-mark .ring{transform-origin:17px 17px;transition:transform .9s var(--ease)}
+.brand-mark.is-spun .ring{transform:rotate(360deg)}
+.brand .wordmark{font-size:17px}
+.dayline{display:block;margin-top:3px;color:var(--ink-3);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.net-chip{height:26px;padding:0 10px;border-radius:999px;background:var(--gold-soft);color:var(--gold-ink);font-size:12px;font-weight:700;display:inline-flex;align-items:center}
+.shoot{position:absolute;left:0;top:18px;width:70px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(227,174,63,0),var(--gold));opacity:0;pointer-events:none}
+.shoot.is-go{animation:shoot 1.1s var(--ease) forwards}
+@keyframes shoot{0%{opacity:0;transform:translate(0,0) rotate(-8deg)}15%{opacity:1}100%{opacity:0;transform:translate(min(70vw,700px),26px) rotate(-8deg)}}
+
+.menu{position:relative}
+.avatar{display:inline-grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,var(--u-mid),var(--u));color:#fff;font-weight:800;letter-spacing:.02em;flex:none}
+.avatar-btn{width:42px;height:42px;border:0;padding:0;border-radius:50%;background:none;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 6px 14px -8px var(--me)}
+.avatar-btn .avatar{width:42px;height:42px;font-size:13px}
+.menu-pop{position:absolute;right:0;top:calc(100% + 8px);width:240px;z-index:var(--z-menu);background:var(--surface-2);border-radius:18px;padding:8px;
+  box-shadow:0 24px 50px -20px rgba(40,24,110,.45),0 0 0 1px var(--line);transform-origin:top right;animation:pop .18s var(--ease)}
+@keyframes pop{from{opacity:0;transform:scale(.96)}}
+.menu-head{padding:10px 10px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.menu-head strong{display:block}
+.menu-head span{color:var(--ink-3);font-size:12.5px;font-weight:600}
+.menu-pop button{display:flex;width:100%;align-items:center;gap:10px;height:44px;padding:0 10px;border:0;border-radius:12px;background:none;font-weight:700;color:var(--ink-2);text-align:left}
+.menu-pop button:hover{background:var(--me-soft);color:var(--ink)}
+.menu-pop svg{width:18px;height:18px;flex:none}
+
+.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:16px;background:rgba(255,255,255,.55);
+  box-shadow:inset 0 0 0 1px var(--line);margin:4px 0 18px;max-width:420px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.tab{position:relative;z-index:1;height:42px;border:0;background:none;border-radius:12px;font-weight:700;font-size:14.5px;color:var(--ink-3);transition:color .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.tab svg{width:17px;height:17px}
+.tab[aria-selected="true"]{color:var(--ink)}
+.tab-ink{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:12px;background:#fff;box-shadow:var(--shadow-sm);transition:transform .32s var(--ease)}
+.tabs[data-active="progress"] .tab-ink{transform:translateX(100%)}
+
+.page{display:none}
+.page.is-active{display:block;animation:pageIn .26s var(--ease)}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px}
+.page-head h1{font:800 24px/1.15 var(--font);letter-spacing:-.02em}
+.page-head p{color:var(--ink-3);font-size:13px;font-weight:600;margin-top:3px}
+
+/* =====================================================================
+   8. LOG PAGE
+   ===================================================================== */
+.voice-btn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px 0 11px;border:0;border-radius:999px;background:var(--surface-2);
+  color:var(--ink);font-weight:700;font-size:13.5px;box-shadow:var(--shadow-sm);transition:transform .16s var(--ease),background-color .2s;flex:none}
+.voice-btn svg{width:18px;height:18px;color:var(--me)}
+.voice-btn:active{transform:scale(.96)}
+.voice-btn.is-listening{background:var(--me);color:#fff}
+.voice-btn.is-listening svg{color:#fff;animation:pulse 1s var(--ease-io) infinite}
+
+.date-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.date-ctl{display:flex;align-items:center;height:46px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm);flex:1 1 230px;min-width:0;max-width:380px}
+.date-step{width:42px;height:46px;border:0;background:none;color:var(--ink-2);display:grid;place-items:center;flex:none}
+.date-step svg{width:18px;height:18px}
+.date-step:disabled{opacity:.3}
+.date-field{position:relative;flex:1;min-width:0;height:46px;display:flex;flex-direction:column;justify-content:center;align-items:center;line-height:1.15}
+.date-field strong{font-size:15px;white-space:nowrap}
+.date-field small{font-size:11.5px;color:var(--ink-3);font-weight:700;white-space:nowrap}
+.date-field small.is-past{color:var(--gold-ink)}
+.date-field input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;cursor:pointer}
+.date-field input::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+
+.voice-strip{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;margin-bottom:12px;border-radius:16px;background:var(--surface-2);
+  box-shadow:inset 0 0 0 1.5px var(--me-mid);animation:pageIn .22s var(--ease)}
+.voice-strip.is-error{box-shadow:inset 0 0 0 1.5px #F3B6BD}
+.voice-dot{width:10px;height:10px;border-radius:50%;background:var(--me);margin-top:5px;flex:none}
+.voice-strip.is-listening .voice-dot{animation:pulse .9s var(--ease-io) infinite}
+.voice-strip.is-error .voice-dot{background:var(--danger)}
+.voice-strip.is-done .voice-dot{background:var(--mint)}
+.voice-body{flex:1;min-width:0;font-size:13.5px;color:var(--ink-2)}
+.voice-body q{color:var(--ink);font-weight:700;quotes:"\201C" "\201D"}
+.voice-body ul{margin-top:4px;display:flex;flex-wrap:wrap;gap:6px}
+.voice-body li{background:var(--me-soft);color:var(--me-deep);border-radius:8px;padding:2px 8px;font-weight:700;font-size:12.5px}
+.voice-actions{display:flex;gap:4px;flex:none}
+.voice-actions button{height:32px;border:0;border-radius:10px;background:none;font-weight:700;font-size:13px;color:var(--ink-2);padding:0 8px}
+.voice-actions .x{width:32px;padding:0;font-size:18px;line-height:1}
+
+.data-alert{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 14px;margin-bottom:12px;border-radius:16px;background:var(--danger-soft);color:var(--danger);font-weight:600;font-size:13.5px}
+.data-alert button{height:34px;border:0;border-radius:10px;background:#fff;color:var(--danger);font-weight:800;padding:0 12px}
+
+.log-grid{display:grid;gap:14px;align-items:start}
+@media (min-width:900px){.log-grid{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+
+/* both log cards share one colourful shell; hue comes from .u-a / .u-b */
+.log-card{position:relative;overflow:hidden;border-radius:var(--r-lg);padding:0 12px 12px;container-type:inline-size;
+  background:linear-gradient(172deg,var(--u-c1) 0%,var(--u-c2) 48%,var(--u-c3) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.65),0 24px 44px -30px var(--u),0 2px 8px -3px rgba(60,36,150,.12)}
+.card-head{position:relative;display:flex;align-items:center;gap:10px;margin:0 -12px 12px;padding:15px 14px 16px;color:#fff;overflow:hidden;
+  background:linear-gradient(118deg,var(--u) 0%,var(--u-deep) 100%)}
+.card-head::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(1.6px 1.6px at 64% 26%,#fff 60%,transparent),radial-gradient(1.2px 1.2px at 78% 72%,rgba(255,255,255,.85) 60%,transparent),
+  radial-gradient(1.1px 1.1px at 52% 80%,rgba(255,255,255,.7) 60%,transparent),radial-gradient(1.4px 1.4px at 90% 20%,rgba(255,255,255,.8) 60%,transparent)}
+.card-head::after{content:"";position:absolute;right:-48px;top:-58px;width:190px;height:120px;border-radius:50%;border:1.5px solid rgba(255,255,255,.26);transform:rotate(-16deg);pointer-events:none}
+.card-head > *{position:relative;z-index:1}
+.card-head .avatar{width:40px;height:40px;font-size:12.5px;background:rgba(255,255,255,.2);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55)}
+.card-who{flex:1;min-width:0}
+.card-who h2{font-size:17px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-who p{font-size:12.5px;color:rgba(255,255,255,.92);font-weight:700;display:flex;align-items:center;gap:5px}
+.card-who p svg{width:13px;height:13px}
+.punch{text-align:right;line-height:1.2;flex:none}
+.punch span{display:block;font-size:11.5px;color:rgba(255,255,255,.9);font-weight:700}
+.punch strong{font-size:15px;font-variant-numeric:tabular-nums}
+
+.subjects{display:grid;gap:8px}
+.subj{padding:10px 10px 11px;border-radius:16px;background:rgba(255,255,255,.74);box-shadow:inset 0 0 0 1px rgba(255,255,255,.85),0 4px 12px -10px var(--u)}
+.subj-top{display:flex;align-items:baseline;gap:8px;min-width:0;margin-bottom:8px}
+.subj-code{font-weight:800;font-size:13px;letter-spacing:.02em;min-width:30px;display:inline-flex;align-items:center;gap:5px}
+.subj-code::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);transform:scale(0);transition:transform .2s var(--ease)}
+.subj.is-changed .subj-code::after{transform:scale(1)}
+.subj-name{flex:1;min-width:0;font-size:13px;color:var(--ink-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subj-hm{font-size:12.5px;font-weight:800;color:var(--u-deep);font-variant-numeric:tabular-nums;flex:none}
+.subj-ctrl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.stepper{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;height:46px;max-width:260px;border-radius:15px;
+  background:var(--u-soft);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),inset 0 -2px 0 rgba(40,20,120,.05)}
+.step{height:46px;border:0;background:none;color:var(--u-deep);display:grid;place-items:center;border-radius:15px;transition:transform .12s var(--ease),background-color .15s;user-select:none;-webkit-user-select:none}
+.step svg{width:18px;height:18px}
+.step:active{transform:scale(.88);background:rgba(255,255,255,.55)}
+.val{display:flex;align-items:baseline;justify-content:center;gap:4px;height:46px;padding-top:11px;cursor:text;min-width:0}
+.val input{width:3.2ch;min-width:0;padding:0;border:0;background:transparent;text-align:right;font:800 20px/1 var(--font);font-variant-numeric:tabular-nums;color:var(--ink);outline:none;-moz-appearance:textfield}
+.val input::placeholder{color:var(--ink-3);opacity:.7}
+.val span{font-size:12.5px;font-weight:700;color:var(--ink-3)}
+.stepper:focus-within{box-shadow:inset 0 0 0 2px var(--me)}
+.val.bump input{animation:bump .26s var(--ease)}
+@keyframes bump{40%{transform:scale(1.14)}}
+.quick{display:flex;gap:5px}
+.quick button{position:relative;min-width:42px;height:38px;padding:0 8px;border:0;border-radius:12px;background:#fff;color:var(--u-deep);
+  font-weight:800;font-size:13px;box-shadow:inset 0 0 0 1px var(--line-2);transition:transform .12s var(--ease),background-color .15s,color .15s}
+.quick button::after{content:"";position:absolute;inset:-4px -2px}
+.quick button:active{transform:scale(.92);background:var(--u);color:#fff}
+@container (min-width:540px){
+  .subj{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:14px}
+  .subj-top{flex-direction:column;align-items:flex-start;gap:1px;margin:0}
+  .subj-code{font-size:14px}
+  .subj-hm{order:3}
+  .subj-name{width:100%}
+  .subj-ctrl{grid-template-columns:210px auto}
+  .cap-note{grid-column:1/-1}
+}
+.cap-note{font-size:12px;font-weight:700;color:var(--gold-ink);margin-top:6px}
+
+.card-foot{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 12px;margin-top:10px;padding:12px 12px 10px;border-radius:16px;background:rgba(255,255,255,.84);box-shadow:inset 0 0 0 1px rgba(255,255,255,.9)}
+.total span{display:block;font-size:12.5px;color:var(--ink-3);font-weight:700}
+.total strong{display:block;white-space:nowrap;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.total strong.bump{animation:bump .3s var(--ease)}
+.save-status{grid-column:1/-1;min-height:19px;font-size:12.5px;font-weight:600;color:var(--ink-3)}
+.save-status.is-dirty{color:var(--gold-ink)}
+.save-status.is-error{color:var(--danger)}
+.save-status.is-ok{color:var(--mint-deep)}
+
+.btn-save{position:relative;height:54px;min-width:150px;padding:0 22px;border:0;border-radius:17px;color:#fff;font-weight:800;font-size:15.5px;letter-spacing:.01em;
+  background:linear-gradient(135deg,var(--me) 0%,var(--me-deep) 100%);box-shadow:0 14px 26px -14px var(--me),inset 0 1px 0 rgba(255,255,255,.25);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;overflow:hidden;transition:transform .16s var(--ease),background .3s,box-shadow .3s,opacity .2s}
+.btn-save:active:not(:disabled){transform:scale(.96)}
+.btn-save:disabled{opacity:.55}
+.btn-save svg{width:20px;height:20px}
+.btn-save .spin{display:none;width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite}
+.btn-save[data-state="saving"] .spin{display:block}
+.btn-save[data-state="saving"] .ico{display:none}
+.btn-save[data-state="saved"]{background:linear-gradient(135deg,#12A07F,var(--mint-deep));box-shadow:0 14px 26px -14px var(--mint)}
+.btn-save .check{display:none}
+.btn-save[data-state="saved"] .check{display:block}
+.btn-save[data-state="saved"] .ico{display:none}
+.btn-save .check path{stroke-dasharray:24;stroke-dashoffset:24}
+.btn-save[data-state="saved"] .check path{animation:draw .45s .05s var(--ease) forwards}
+.btn-save[data-state="saved"]::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 0 rgba(18,160,127,.5);animation:ring .7s var(--ease)}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes ring{to{box-shadow:0 0 0 14px rgba(18,160,127,0)}}
+.btn-save[data-state="error"]{background:linear-gradient(135deg,#D14553,var(--danger))}
+
+/* partner card: same card, same rows, read-only values instead of controls */
+.view-badge{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 9px;border-radius:999px;background:rgba(255,255,255,.2);color:#fff;font-size:11.5px;font-weight:800;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.view-badge svg{width:12px;height:12px}
+.subj.is-view{display:flex;align-items:center;gap:10px;min-height:60px;padding:8px 8px 8px 10px}
+.subj.is-view .subj-top{flex:1;min-width:0;flex-direction:column;align-items:flex-start;gap:1px;margin:0}
+.subj.is-view .subj-code{font-size:14px}
+.subj.is-view .subj-name{display:block;width:100%;white-space:normal;line-height:1.3}
+.p-val{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:96px;height:44px;padding:0 12px;border-radius:15px;background:var(--u-soft);line-height:1.1;font-variant-numeric:tabular-nums}
+.p-val strong{font-size:18px;font-weight:800;color:var(--ink)}
+.p-val strong small{font-size:12px;font-weight:700;color:var(--ink-3);margin-left:3px}
+.p-val em{font-style:normal;font-size:11.5px;font-weight:800;color:var(--u-deep)}
+.p-val.is-zero{background:rgba(255,255,255,.55);border:1.5px dashed var(--u-mid)}
+.p-val.is-zero strong{color:var(--ink-3);font-weight:700}
+.p-foot{grid-template-columns:auto minmax(0,1fr)}
+.p-foot .p-lock{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12.5px;font-weight:700;color:var(--ink-3);text-align:right;line-height:1.35}
+.p-foot .p-lock svg{width:14px;height:14px;flex:none}
+.p-note{grid-column:1/-1;font-size:12.5px;color:var(--ink-3);font-weight:600}
+
+.skeleton .val input,.skeleton .p-val strong,.skeleton .total strong{color:transparent;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,.1),rgba(0,0,0,.05));background-size:200% 100%;border-radius:6px;animation:shimmer 1.2s linear infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* =====================================================================
+   9. PROGRESS PAGE
+   ===================================================================== */
+.range{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 1px var(--line);margin-bottom:10px}
+.range button{height:36px;border:0;border-radius:12px;background:none;font-weight:700;font-size:12.5px;color:var(--ink-2);white-space:nowrap;padding:0 2px;transition:background-color .2s,color .2s,box-shadow .2s}
+.range button[aria-checked="true"]{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm)}
+@media (min-width:760px){.range{grid-template-columns:repeat(10,minmax(0,1fr))}}
+.custom{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;padding:12px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm);margin-bottom:10px}
+.custom label{display:grid;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink-3);min-width:0}
+.custom input{height:42px;border:0;border-radius:12px;padding:0 10px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line-2);font-weight:700;font-size:14px;min-width:0;width:100%}
+.custom .btn{grid-column:1/-1;height:42px}
+.custom-err{grid-column:1/-1;min-height:0;font-size:12.5px;font-weight:700;color:var(--danger)}
+@media (min-width:600px){.custom{grid-template-columns:1fr 1fr auto}.custom .btn{grid-column:auto}}
+.range-caption{font-size:13px;color:var(--ink-3);font-weight:600;margin:0 2px 14px}
+
+.prog-grid{display:grid;gap:14px}
+@media (min-width:960px){
+  .prog-grid{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-template-areas:"mom mom" "cmp ins" "sub rec"}
+  .p-mom{grid-area:mom}.p-cmp{grid-area:cmp}.p-ins{grid-area:ins}.p-sub{grid-area:sub}.p-rec{grid-area:rec}
+}
+.panel{--pa:var(--a);position:relative;overflow:hidden;border-radius:var(--r-lg);padding:16px 14px;min-width:0;
+  background:linear-gradient(168deg,var(--p1) 0%,var(--p2) 52%,var(--p3) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 22px 42px -30px var(--pa),0 2px 8px -3px rgba(60,36,150,.10)}
+.panel > *{position:relative}
+.panel::after{content:"";position:absolute;right:-60px;top:-70px;width:200px;height:130px;border-radius:50%;border:1.5px solid var(--pa);opacity:.14;transform:rotate(-14deg);pointer-events:none}
+.panel h2{font-size:15.5px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.panel h2::before{content:"";width:5px;height:16px;border-radius:3px;background:linear-gradient(180deg,var(--pa),var(--pb,var(--pa)))}
+.p-mom{--p1:#EAE1FF;--p2:#F5F0FF;--p3:#DDEAFF;--pa:var(--a);--pb:var(--sky)}
+.p-cmp{--p1:#FFE3D3;--p2:#FFF1EA;--p3:#FFE6EF;--pa:#E0764A;--pb:var(--b)}
+.p-sub{--p1:#ECE3FF;--p2:#FAF3FB;--p3:#FFE6EF;--pa:var(--a);--pb:var(--b)}
+.p-ins{--p1:#FFEBB8;--p2:#FFF6DE;--p3:#FFEFD9;--pa:var(--gold);--pb:#E0764A}
+.p-rec{--p1:#D6F3E7;--p2:#EEF9F4;--p3:#DDEAFF;--pa:var(--mint);--pb:var(--sky)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.legend{display:flex;gap:12px;font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:4px;border-radius:2px;background:var(--u)}
+
+.chart{position:relative;width:100%;touch-action:pan-y;outline:none}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart .grid line{stroke:var(--line);stroke-width:1}
+.chart .axis text{fill:var(--ink-3);font-size:11px;font-weight:600;font-family:var(--font)}
+.chart .area{opacity:1}
+.chart .line{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.chart .dot{stroke:#fff;stroke-width:2}
+.chart .guide{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3;opacity:0;transition:opacity .15s}
+.chart.is-hover .guide{opacity:.6}
+.chart .hl{opacity:0;transition:opacity .15s}
+.chart.is-hover .hl{opacity:1}
+.chart.animate .line{animation:draw 0.9s var(--ease) forwards}
+.chart.animate .area{animation:fadeIn .7s .15s var(--ease) both}
+@keyframes fadeIn{from{opacity:0}}
+.chart .empty{fill:var(--ink-3);font-size:13px;font-weight:700;font-family:var(--font)}
+.tip{position:absolute;top:0;pointer-events:none;min-width:140px;padding:9px 11px;border-radius:12px;background:rgba(31,26,61,.94);color:#fff;font-size:12.5px;line-height:1.45;
+  box-shadow:0 12px 30px -12px rgba(20,10,60,.6);opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s var(--ease);white-space:nowrap}
+.chart.is-hover .tip{opacity:1;transform:none}
+.tip b{display:block;font-size:12px;opacity:.75;font-weight:700;margin-bottom:2px}
+.tip span{display:flex;align-items:center;gap:6px;justify-content:space-between}
+.tip i{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--u-mid)}
+.tip em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums;margin-left:10px}
+.chart-note{font-size:12px;color:var(--ink-3);font-weight:600;margin-top:4px}
+.together{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1px rgba(11,122,97,.18);color:var(--mint-deep);font-size:13px;font-weight:700}
+.together svg{width:22px;height:22px;flex:none}
+
+.cmp{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.cmp th,.cmp td{padding:10px 4px;text-align:right;border-top:1px solid var(--line);font-size:14px}
+.cmp thead th{border-top:0;padding-top:0;font-size:13px}
+.cmp th:first-child,.cmp td:first-child{text-align:left}
+.cmp tbody th{font-weight:600;color:var(--ink-3);font-size:13px}
+.cmp td{font-weight:800}
+.cmp thead th span{display:inline-flex;align-items:center;gap:6px;color:var(--u-deep);font-weight:800}
+.cmp thead th span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--u)}
+.cmp small{font-weight:600;color:var(--ink-3);font-size:12px}
+
+.subj-split{display:grid;gap:18px}
+@media (min-width:640px){.subj-split{grid-template-columns:1fr 1fr;gap:22px}}
+.sb-head{font-size:13px;font-weight:800;color:var(--u-deep);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sb-head::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--u)}
+.sb-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:10px;height:30px}
+.sb-row b{font-size:12.5px;font-weight:800;color:var(--ink-2)}
+.sb-track{height:10px;border-radius:6px;background:rgba(255,255,255,.8);box-shadow:inset 0 0 0 1px rgba(255,255,255,.9);overflow:hidden}
+.sb-fill{height:100%;border-radius:6px;background:var(--u-mid);transform-origin:left;animation:grow .6s var(--ease) both}
+.sb-row.is-top .sb-fill{background:linear-gradient(90deg,var(--u-mid),var(--u))}
+@keyframes grow{from{transform:scaleX(0)}}
+.sb-val{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right;min-width:78px}
+.sb-val small{color:var(--ink-3);font-weight:600;margin-left:4px}
+.muted-empty{font-size:13px;color:var(--ink-3);font-weight:600;padding:6px 0}
+
+.insights li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);font-size:14px;font-weight:600;color:var(--ink-2);line-height:1.45}
+.insights li:first-child{border-top:0;padding-top:2px}
+.insights svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--gold)}
+
+.recent li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.recent li:first-child{border-top:0;padding-top:0}
+.recent .avatar{width:30px;height:30px;font-size:11px}
+.recent strong{display:block;font-size:13.5px}
+.recent p{font-size:12.5px;color:var(--ink-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent time{text-align:right;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.25}
+.recent time small{display:block;font-size:11.5px;color:var(--ink-3);font-weight:600}
+
+/* =====================================================================
+   10. DIALOG + TOAST
+   ===================================================================== */
+dialog{border:0;padding:0;background:transparent;max-width:min(440px,calc(100vw - 24px));width:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(31,26,61,.32);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+dialog[open]{animation:pop .2s var(--ease)}
+.dlg{background:var(--surface-2);border-radius:24px;padding:20px;display:grid;gap:12px;box-shadow:0 30px 70px -30px rgba(30,15,90,.6)}
+.dlg h2{font-size:18px;font-weight:800}
+.dlg p{color:var(--ink-2);font-size:14px}
+.dlg textarea{width:100%;min-height:92px;resize:vertical;border:0;border-radius:14px;padding:12px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line-2);font-size:15px;font-weight:500;outline:none}
+.dlg textarea:focus{box-shadow:inset 0 0 0 2px var(--me)}
+.dlg .row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink-3);font-weight:600}
+.dlg .err{color:var(--danger);font-weight:700}
+.dlg .actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);z-index:var(--z-toast);transform:translate(-50%,-16px);opacity:0;visibility:hidden;max-width:calc(100vw - 24px);
+  padding:11px 16px;border-radius:14px;background:rgba(31,26,61,.95);color:#fff;font-weight:700;font-size:13.5px;box-shadow:0 16px 36px -16px rgba(20,10,60,.6);
+  transition:transform .32s var(--ease),opacity .2s,visibility 0s .32s;pointer-events:none}
+.toast.is-show{transform:translate(-50%,0);opacity:1;visibility:visible;transition:transform .32s var(--ease),opacity .2s}
+.toast.is-err{background:#8E2230}
+
+/* =====================================================================
+   11. SMALL SCREENS + MOTION PREFERENCES
+   ===================================================================== */
+@media (max-width:374px){
+  .subj-name{font-size:12.5px}
+  .quick button{min-width:38px;padding:0 5px;font-size:12.5px}
+  .stepper{grid-template-columns:40px minmax(0,1fr) 40px}
+  .step{width:40px}
+  .btn-save{min-width:132px;padding:0 16px}
+  .total strong{font-size:23px}
+  .range button{font-size:12px}
+}
+@media (min-width:375px) and (max-width:419px){.subj-name{font-size:12.5px}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  .chart.animate .line{stroke-dashoffset:0 !important}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-planet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9B8FF"/><stop offset=".55" stop-color="#E7A6D6"/><stop offset="1" stop-color="#FF9FC1"/></linearGradient>
+    <linearGradient id="g-growth" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#7BD8B9" stop-opacity="0"/><stop offset=".5" stop-color="#7BD8B9"/><stop offset="1" stop-color="#E3AE3F"/></linearGradient>
+    <symbol id="i-star" viewBox="0 0 16 16"><path d="M8 0c.5 4.2 3.3 7.5 8 8-4.7.5-7.5 3.8-8 8-.5-4.2-3.3-7.5-8-8 4.7-.5 7.5-3.8 8-8Z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ DECORATIVE SKY ============ -->
+<div class="sky" aria-hidden="true">
+  <svg class="stars" preserveAspectRatio="xMidYMid slice" viewBox="0 0 400 800">
+    <g fill="#8B7BD8" opacity=".35">
+      <circle cx="30" cy="60" r="1.2"/><circle cx="120" cy="30" r=".9"/><circle cx="350" cy="90" r="1.1"/><circle cx="260" cy="200" r=".8"/>
+      <circle cx="60" cy="340" r="1"/><circle cx="380" cy="420" r=".9"/><circle cx="170" cy="520" r="1.2"/><circle cx="320" cy="640" r="1"/>
+      <circle cx="40" cy="700" r=".8"/><circle cx="220" cy="760" r="1"/>
+    </g>
+    <use href="#i-star" x="330" y="40" width="9" height="9" style="color:#E3AE3F" opacity=".5"/>
+    <use href="#i-star" x="24" y="470" width="7" height="7" style="color:#B9A5FF" opacity=".6"/>
+  </svg>
+  <svg class="orbit-deco" viewBox="0 0 400 400" fill="none">
+    <g transform="rotate(-18 200 200)" stroke="#B9A5FF" stroke-width="1">
+      <ellipse cx="200" cy="200" rx="190" ry="70" opacity=".5"/>
+      <ellipse cx="200" cy="200" rx="130" ry="46" opacity=".4" stroke="#FF9FC1"/>
+    </g>
+    <circle cx="200" cy="200" r="26" fill="url(#g-planet)" opacity=".35"/>
+  </svg>
+  <svg class="growth-deco" viewBox="0 0 640 260" fill="none">
+    <path d="M0 250 C 180 246, 300 220, 400 150 S 560 30, 640 10" stroke="url(#g-growth)" stroke-width="1.5" stroke-dasharray="2 6" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<!-- ============ LOADING ============ -->
+<main id="screen-loading" class="screen is-active" aria-busy="true">
+  <div class="boot">
+    <svg class="boot-orbit" viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="12" fill="url(#g-planet)"/>
+      <circle cx="32" cy="32" r="24" fill="none" stroke="#B9A5FF" stroke-width="1.5" stroke-dasharray="2 5"/>
+      <g class="moon"><circle cx="56" cy="32" r="4" fill="#0B7A61"/></g>
+    </svg>
+    <p id="boot-text">Connecting to StudyBuddy</p>
+  </div>
+</main>
+
+<!-- ============ FATAL ERROR ============ -->
+<main id="screen-error" class="screen" role="alert">
+  <div class="fatal">
+    <h1 id="fatal-title">StudyBuddy couldn't start</h1>
+    <p id="fatal-copy">The app couldn't reach Firebase, so your study data can't be shown yet.</p>
+    <code id="fatal-detail"></code>
+    <button class="btn btn-primary theme-a" id="fatal-retry" type="button">Try again</button>
+  </div>
+</main>
+
+<!-- ============ AUTH ============ -->
+<main id="screen-auth" class="screen">
+  <div class="auth-art" aria-hidden="true">
+    <svg viewBox="0 0 400 230" fill="none">
+      <!-- faint ledger lines -->
+      <g stroke="#6A45D9" stroke-opacity=".08"><path d="M0 70H400M0 120H400M0 170H400"/></g>
+      <!-- constellation with currency nodes -->
+      <g stroke="#6A45D9" stroke-opacity=".22" stroke-width=".8"><path d="M40 40 L78 22 L112 48 L96 80"/></g>
+      <g fill="#6A45D9" fill-opacity=".5"><circle cx="40" cy="40" r="1.8"/><circle cx="112" cy="48" r="1.8"/></g>
+      <text x="72" y="26" font-size="11" font-weight="700" fill="#6A45D9" fill-opacity=".45" font-family="Manrope,sans-serif">₹</text>
+      <text x="92" y="86" font-size="10" font-weight="700" fill="#C22A63" fill-opacity=".4" font-family="Manrope,sans-serif">$</text>
+      <!-- orbits -->
+      <g transform="rotate(-14 272 96)">
+        <ellipse cx="272" cy="96" rx="112" ry="30" stroke="#B9A5FF" stroke-width="1.2" opacity=".8"/>
+        <ellipse cx="272" cy="96" rx="76" ry="19" stroke="#FF9FC1" stroke-width="1" opacity=".6"/>
+      </g>
+      <circle cx="272" cy="96" r="36" fill="url(#g-planet)"/>
+      <path d="M239 108 C 250 124, 300 122, 309 100" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+      <g transform="rotate(-14 272 96)"><path d="M160 96 A112 30 0 0 0 384 96" stroke="#8C74F0" stroke-width="1.6" opacity=".9"/></g>
+      <!-- moon riding the orbit -->
+      <g transform="rotate(-14 272 96)"><circle r="5" fill="#0B7A61">
+        <animateMotion dur="26s" repeatCount="indefinite" path="M160 96 A112 30 0 1 1 384 96 A112 30 0 1 1 160 96"/>
+      </circle></g>
+      <!-- compound growth curve = rocket trajectory -->
+      <path d="M8 222 C 110 218, 170 204, 214 170 S 300 70, 360 30" stroke="url(#g-growth)" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="1 7"/>
+      <use href="#i-star" x="352" y="20" width="18" height="18" style="color:#E3AE3F"/>
+      <use href="#i-star" x="190" y="30" width="8" height="8" style="color:#B9A5FF"/>
+      <use href="#i-star" x="380" y="150" width="7" height="7" style="color:#FF9FC1"/>
+    </svg>
+    <div class="auth-brand">
+      <div class="wordmark lg">StudyBuddy</div>
+      <p>A private study space for Abhishek and Harshita</p>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <!-- LOGIN VIEW -->
+    <section class="auth-card theme-a" id="view-login" aria-labelledby="login-title">
+      <div>
+        <h1 id="login-title">Who's studying?</h1>
+      </div>
+      <div class="who" role="group" aria-label="Choose profile">
+        <button class="who-tile u-a" type="button" data-login-user="a" aria-pressed="false"><span class="avatar">AB</span><strong>Abhishek</strong></button>
+        <button class="who-tile u-b" type="button" data-login-user="b" aria-pressed="false"><span class="avatar">HA</span><strong>Harshita</strong></button>
+      </div>
+      <form id="login-form" autocomplete="on" onsubmit="return false">
+        <input type="text" id="login-username" name="username" autocomplete="username" hidden/>
+        <label class="field-label" for="login-pin-input">Enter your 4-digit PIN</label>
+        <div class="pin" id="pin-login">
+          <input id="login-pin-input" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="current-password" enterkeyhint="go" aria-describedby="login-msg"/>
+          <span class="pin-cell"></span><span class="pin-cell"></span><span class="pin-cell"></span><span class="pin-cell"></span>
+        </div>
+      </form>
+      <div class="auth-msg" id="login-msg" role="status" aria-live="polite"></div>
+      <div class="auth-actions">
+        <button class="btn btn-primary" id="login-btn" type="button">Continue</button>
+        <button class="link" id="login-create" type="button" hidden>Create a PIN for this profile</button>
+      </div>
+      <div class="auth-foot"><span><span class="dot"></span><span id="login-day">Study day</span></span><span>Days roll over at 3:00 AM</span></div>
+    </section>
+
+    <!-- SETUP / RESET VIEW -->
+    <section class="auth-card theme-a" id="view-setup" aria-labelledby="setup-title" hidden>
+      <div>
+        <h1 id="setup-title">Create your PIN</h1>
+        <p class="lead" id="setup-lead">Choose your profile and set a 4-digit PIN.</p>
+      </div>
+      <div class="who" role="group" aria-label="Choose profile">
+        <button class="who-tile u-a" type="button" data-setup-user="a" aria-pressed="false"><span class="avatar">AB</span><strong>Abhishek</strong></button>
+        <button class="who-tile u-b" type="button" data-setup-user="b" aria-pressed="false"><span class="avatar">HA</span><strong>Harshita</strong></button>
+      </div>
+      <form id="setup-form" autocomplete="on" onsubmit="return false">
+        <input type="text" id="setup-username" name="username" autocomplete="username" hidden/>
+        <label class="field-label" for="setup-pin-input">New PIN</label>
+        <div class="pin" id="pin-new">
+          <input id="setup-pin-input" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" enterkeyhint="next"/>
+          <span class="pin-cell"></span><span class="pin-cell"></span><span class="pin-cell"></span><span class="pin-cell"></span>
+        </div>
+        <label class="field-label" for="setup-confirm-input" style="margin-top:14px">Confirm PIN</label>
+        <div class="pin" id="pin-confirm">
+          <input id="setup-confirm-input" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" enterkeyhint="done"/>
+          <span class="pin-cell"></span><span class="pin-cell"></span><span class="pin-cell"></span><span class="pin-cell"></span>
+        </div>
+      </form>
+      <div class="auth-msg" id="setup-msg" role="status" aria-live="polite"></div>
+      <div class="auth-actions">
+        <button class="btn btn-primary" id="setup-btn" type="button">Create PIN</button>
+        <button class="btn btn-ghost" id="setup-back" type="button">Back</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ============ APP ============ -->
+<div id="screen-app" class="screen">
+  <div class="shell">
+    <header class="topbar">
+      <span class="shoot" id="shoot" aria-hidden="true"></span>
+      <button class="brand" id="brand" type="button" aria-label="StudyBuddy">
+        <svg class="brand-mark" id="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
+          <circle cx="17" cy="17" r="10" fill="url(#g-planet)"/>
+          <g class="ring"><ellipse cx="17" cy="17" rx="16" ry="5.5" fill="none" stroke="#6A45D9" stroke-width="1.4" transform="rotate(-20 17 17)" opacity=".8"/><circle cx="31.6" cy="12" r="2" fill="#0B7A61"/></g>
+        </svg>
+        <span style="min-width:0"><span class="wordmark">StudyBuddy</span><span class="dayline" id="dayline">Study day</span></span>
+      </button>
+      <span class="net-chip" id="net-chip" hidden>Offline</span>
+      <div class="menu">
+        <button class="avatar-btn" id="menu-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-pop" aria-label="Profile menu"><span class="avatar" id="me-avatar">AB</span></button>
+        <div class="menu-pop" id="menu-pop" role="menu" hidden>
+          <div class="menu-head"><strong id="menu-name">Abhishek</strong><span>Study days roll over at 3:00 AM</span></div>
+          <button type="button" role="menuitem" id="menu-reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Reset PIN</button>
+          <button type="button" role="menuitem" id="menu-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l4-4-4-4M14 12H4"/></svg>Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Sections" data-active="log">
+      <span class="tab-ink" aria-hidden="true"></span>
+      <button class="tab" role="tab" id="tab-log" aria-controls="page-log" aria-selected="true" data-page="log">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M10 2h4"/></svg>Log study</button>
+      <button class="tab" role="tab" id="tab-progress" aria-controls="page-progress" aria-selected="false" data-page="progress">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 19c4-1 6-5 9-8s5-5 9-6"/><path d="M3 21h18"/></svg>Progress</button>
+    </nav>
+
+    <!-- ============ LOG PAGE ============ -->
+    <section class="page is-active" id="page-log" role="tabpanel" aria-labelledby="tab-log">
+      <div class="page-head">
+        <h1>Study log</h1>
+        <button class="voice-btn" id="voice-btn" type="button" aria-label="Voice punch: speak a subject and time">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          <span id="voice-btn-label">Voice</span>
+        </button>
+      </div>
+
+      <div class="date-bar">
+        <div class="date-ctl">
+          <button class="date-step" id="date-prev" type="button" aria-label="Previous day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+          <label class="date-field">
+            <strong id="date-main">Today</strong>
+            <small id="date-sub">Current study day</small>
+            <input type="date" id="log-date" aria-label="Study date"/>
+          </label>
+          <button class="date-step" id="date-next" type="button" aria-label="Next day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div>
+        <button class="chip" id="date-today" type="button" aria-label="Back to today's study day" hidden>Today</button>
+      </div>
+
+      <div class="voice-strip" id="voice-strip" role="status" aria-live="polite" hidden>
+        <span class="voice-dot" aria-hidden="true"></span>
+        <div class="voice-body" id="voice-body"></div>
+        <div class="voice-actions">
+          <button type="button" id="voice-undo" hidden>Undo</button>
+          <button type="button" class="x" id="voice-close" aria-label="Dismiss voice message">×</button>
+        </div>
+      </div>
+
+      <div class="data-alert" id="data-alert" role="alert" hidden><span id="data-alert-text"></span><button type="button" id="data-retry">Retry</button></div>
+
+      <div class="log-grid">
+        <section class="me-card skeleton" id="me-card" aria-labelledby="me-card-name"></section>
+        <section class="partner-card skeleton" id="partner-card" aria-labelledby="partner-card-name"></section>
+      </div>
+    </section>
+
+    <!-- ============ PROGRESS PAGE ============ -->
+    <section class="page" id="page-progress" role="tabpanel" aria-labelledby="tab-progress">
+      <div class="page-head"><h1>Progress</h1></div>
+      <div class="range" id="range" role="radiogroup" aria-label="Period"></div>
+      <div class="custom" id="custom" hidden>
+        <label>From<input type="date" id="custom-from"/></label>
+        <label>To<input type="date" id="custom-to"/></label>
+        <button class="btn btn-primary" id="custom-apply" type="button">Show period</button>
+        <p class="custom-err" id="custom-err" role="alert"></p>
+      </div>
+      <p class="range-caption" id="range-caption"></p>
+
+      <div class="prog-grid">
+        <section class="panel p-mom" aria-labelledby="mom-title">
+          <div class="panel-head">
+            <h2 id="mom-title">Momentum</h2>
+            <div class="legend" id="legend"></div>
+          </div>
+          <div class="chart" id="chart" tabindex="0" role="img" aria-label="Study minutes over time"></div>
+          <p class="chart-note" id="chart-note"></p>
+          <div class="together" id="together">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><ellipse cx="9" cy="12" rx="6" ry="6"/><ellipse cx="15" cy="12" rx="6" ry="6"/></svg>
+            <span id="together-text"></span>
+          </div>
+        </section>
+
+        <section class="panel p-cmp" aria-labelledby="cmp-title">
+          <div class="panel-head"><h2 id="cmp-title">Side by side</h2></div>
+          <table class="cmp" id="cmp"></table>
+        </section>
+
+        <section class="panel p-sub" aria-labelledby="sub-title">
+          <div class="panel-head"><h2 id="sub-title">Subject mix</h2></div>
+          <div class="subj-split" id="subj-split"></div>
+        </section>
+
+        <section class="panel p-ins" aria-labelledby="ins-title">
+          <div class="panel-head"><h2 id="ins-title">Patterns for you</h2></div>
+          <ul class="insights" id="insights"></ul>
+        </section>
+
+        <section class="panel p-rec" aria-labelledby="rec-title">
+          <div class="panel-head"><h2 id="rec-title">Recent punches</h2></div>
+          <ul class="recent" id="recent"></ul>
+        </section>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ PAST-DATE REASON ============ -->
+<dialog id="reason-dialog" aria-labelledby="reason-title">
+  <form class="dlg theme-a" id="reason-form" method="dialog">
+    <h2 id="reason-title">Why update a past day?</h2>
+    <p id="reason-copy">This study day has closed. Add a short reason with the update.</p>
+    <textarea id="reason-input" maxlength="180" placeholder="Example: adding a session I forgot to log" aria-describedby="reason-err"></textarea>
+    <div class="row"><span class="err" id="reason-err" role="alert"></span><span id="reason-count">0/180</span></div>
+    <div class="actions">
+      <button class="btn btn-ghost" type="button" id="reason-cancel">Cancel</button>
+      <button class="btn btn-primary" type="submit" id="reason-ok">Save update</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module">
+/* ======================================================================
+   StudyBuddy
+   Sections:
+     1. Config & constants        8. Study log
+     2. State                     9. Voice punch (parser + controller)
+     3. Study-day date utilities  10. Analytics (single range engine)
+     4. Firebase layer            11. Momentum chart
+     5. UI helpers                12. Progress render (single flow)
+     6. PIN field                 13. Navigation & lifecycle
+     7. Authentication            14. Boot
+   ====================================================================== */
+
+/* ---------- 1. CONFIG & CONSTANTS ---------- */
+const SDK_BASE = 'https://www.gstatic.com/firebasejs/11.9.0/';
+const firebaseConfig = {
+  apiKey: "AIzaSyA4YIZFMwkRxFNUmSMl8eMdjQZWbW0bpSg",
+  authDomain: "studybuddy-abhi-harshita.firebaseapp.com",
+  databaseURL: "https://studybuddy-abhi-harshita-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "studybuddy-abhi-harshita",
+  storageBucket: "studybuddy-abhi-harshita.firebasestorage.app",
+  messagingSenderId: "797464501341",
+  appId: "1:797464501341:web:1128edbb0886ec987281b4"
+};
+const SUBJECTS = [
+  {key:'fr',  label:'FR',  full:'Financial Reporting'},
+  {key:'afm', label:'AFM', full:'Advanced Financial Management'},
+  {key:'dt',  label:'DT',  full:'Direct Taxes'},
+  {key:'idt', label:'IDT', full:'Indirect Taxes'},
+  {key:'aa',  label:'AA',  full:'Advanced Audit'},
+];
+const SUBJECT_KEYS = SUBJECTS.map(s => s.key);
+const SUBJECT_BY_KEY = Object.fromEntries(SUBJECTS.map(s => [s.key, s]));
+const USERS = { a:{name:'Abhishek', initials:'AB'}, b:{name:'Harshita', initials:'HA'} };
+const MAX_SUBJECT_MINUTES = 600;
+const STUDY_DAY_ROLLOVER_HOUR = 3;
+const STEP_MINUTES = 5;
+const SESSION_KEY = 'sb_user';          // unchanged from the original app
+const LAST_USER_KEY = 'sb_last_user';   // only used to pre-select the login tile
+const RANGE_KEY = 'sb_range';
+const FB_TIMEOUT_MS = 15000;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const partnerOf = u => (u === 'a' ? 'b' : 'a');
+
+/* ---------- 2. STATE ---------- */
+const state = {
+  currentUser: null,
+  loginUser: 'a',
+  loginBusy: false,
+  pinsExist: null,            // {a:bool, b:bool} once known (hashes are never kept)
+  setupMode: 'create',        // 'create' | 'reset'
+  setupUser: null,
+  setupBusy: false,
+  entries: {},                // full entries tree, kept in memory
+  loaded: false,
+  dataVersion: 0,
+  today: null,
+  logDate: null,
+  saving: false,
+  lastSaveAt: null,
+  page: 'log',
+  progressStale: true,
+  range: { id:'7d', from:null, to:null },
+  deltas: new Map(),          // `${date}|${u}|${updatedAt}` -> [{key, diff}]
+  unsubs: [],
+  timers: { rollover:null, tick:null, offline:null, saveOk:null },
+  voice: { rec:null, listening:false, undo:null },
+};
+
+/* ---------- 3. STUDY-DAY DATE UTILITIES ---------- */
+const pad2 = n => String(n).padStart(2, '0');
+function dateToLocalStr(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+/** The study day changes at 3:00 AM, not midnight. */
+function todayStr(now = new Date()){
+  const d = new Date(now);
+  if (d.getHours() < STUDY_DAY_ROLLOVER_HOUR) d.setDate(d.getDate() - 1);
+  return dateToLocalStr(d);
+}
+function parseDateStr(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function isDateStr(s){
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = parseDateStr(s); return !isNaN(d) && dateToLocalStr(d) === s;
+}
+function addDays(s, n){ const d = parseDateStr(s); d.setDate(d.getDate() + n); return dateToLocalStr(d); }
+function daysBetween(a, b){ return Math.round((parseDateStr(b) - parseDateStr(a)) / 86400000); }
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+/** Deterministic formatting (locale output differs across Android versions, e.g. "Sept"). */
+function fmtDate(s, opts = {day:'numeric', month:'short'}){
+  const d = parseDateStr(s), parts = [];
+  if (opts.weekday) parts.push(opts.weekday === 'long' ? WEEKDAYS[d.getDay()] : WEEKDAYS[d.getDay()].slice(0, 3));
+  if (opts.day) parts.push(String(d.getDate()));
+  if (opts.month) parts.push(opts.month === 'long' ? MONTHS[d.getMonth()] : MONTHS[d.getMonth()].slice(0, 3));
+  if (opts.year) parts.push(String(d.getFullYear()));
+  if (opts.weekday && parts.length > 1) parts[0] += ',';
+  return parts.join(' ');
+}
+function relDay(s){
+  const t = state.today || todayStr();
+  if (s === t) return 'Today';
+  if (s === addDays(t, -1)) return 'Yesterday';
+  const sameYear = s.slice(0,4) === t.slice(0,4);
+  return fmtDate(s, sameYear ? {day:'numeric', month:'short'} : {day:'numeric', month:'short', year:'numeric'});
+}
+function fmtTime(iso){
+  const d = new Date(iso);
+  return isNaN(d) ? '—' : d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+}
+function fmtMin(m){
+  m = Math.max(0, Math.round(+m || 0));
+  if (m < 60) return m + 'm';
+  const h = Math.floor(m / 60), r = m % 60;
+  return r ? `${h}h ${r}m` : `${h}h`;
+}
+const clampMin = v => Math.min(MAX_SUBJECT_MINUTES, Math.max(0, parseInt(v, 10) || 0));
+
+/* ---------- 4. FIREBASE LAYER ---------- */
+const fb = {};
+function withTimeout(promise, ms, message){
+  let t;
+  return Promise.race([promise, new Promise((_, rej) => { t = setTimeout(() => rej(new Error(message)), ms); })])
+    .finally(() => clearTimeout(t));
+}
+async function connectFirebase(){
+  const [appMod, dbMod] = await withTimeout(
+    Promise.all([import(SDK_BASE + 'firebase-app.js'), import(SDK_BASE + 'firebase-database.js')]),
+    FB_TIMEOUT_MS, 'The Firebase SDK did not download within 15 seconds.');
+  const app = appMod.initializeApp(firebaseConfig);
+  Object.assign(fb, { db: dbMod.getDatabase(app), ref: dbMod.ref, get: dbMod.get, set: dbMod.set, onValue: dbMod.onValue });
+}
+const dbGet = path => withTimeout(fb.get(fb.ref(fb.db, path)), FB_TIMEOUT_MS, `Firebase did not answer a read of "${path}" within 15 seconds.`);
+const dbSet = (path, value) => fb.set(fb.ref(fb.db, path), value);
+function dbListen(path, onData, onError){ return fb.onValue(fb.ref(fb.db, path), onData, onError); }
+function errText(e){ return (e && (e.code ? `${e.code}: ${e.message}` : e.message)) || String(e); }
+
+/* ---------- 5. UI HELPERS ---------- */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function showScreen(name){
+  $$('.screen').forEach(s => s.classList.toggle('is-active', s.id === 'screen-' + name));
+  $('#screen-loading').setAttribute('aria-busy', String(name === 'loading'));
+}
+let toastTimer;
+function toast(msg, tone = 'ok', ms = 2600){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast is-show' + (tone === 'err' ? ' is-err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = 'toast' + (tone === 'err' ? ' is-err' : ''); }, ms);
+}
+function bump(el){ if (!el || reduceMotion.matches) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+function haptic(ms = 12){ try { navigator.vibrate && navigator.vibrate(ms); } catch {} }
+function showFatal(title, copy, err){
+  $('#fatal-title').textContent = title;
+  $('#fatal-copy').textContent = copy;
+  $('#fatal-detail').textContent = err ? errText(err) : '';
+  $('#fatal-detail').hidden = !err;
+  showScreen('error');
+}
+const ICON_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const ICON_PEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/></svg>';
+
+/* ---------- 6. PIN FIELD ----------
+   One real input behind four visual cells. This is deliberate: separate
+   inputs cannot reliably detect Backspace on an empty box on Android
+   keyboards (no keydown key, no input event). With one input, digits
+   advance automatically, Backspace always steps back, and paste / password
+   autofill of a 4-digit PIN just works. */
+function createPinField(root, { onComplete, onChange } = {}){
+  const input = $('input', root);
+  const cells = $$('.pin-cell', root);
+  let lastFired = '';
+  function render(){
+    const v = input.value, focused = document.activeElement === input;
+    cells.forEach((c, i) => {
+      c.classList.toggle('is-filled', i < v.length);
+      c.classList.toggle('is-active', focused && i === Math.min(v.length, 3));
+    });
+  }
+  function toEnd(){ try { const n = input.value.length; input.setSelectionRange(n, n); } catch {} }
+  function sync(){
+    const clean = input.value.replace(/\D/g, '').slice(0, 4);
+    if (clean !== input.value) input.value = clean;
+    root.classList.remove('is-error', 'is-match');
+    render();
+    onChange && onChange(clean);
+    if (clean.length === 4 && clean !== lastFired){ lastFired = clean; onComplete && onComplete(clean); }
+    if (clean.length < 4) lastFired = '';
+  }
+  input.addEventListener('input', sync);
+  input.addEventListener('change', sync);
+  input.addEventListener('focus', () => { render(); requestAnimationFrame(toEnd); });
+  input.addEventListener('click', toEnd);
+  input.addEventListener('blur', render);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && input.value.length === 4){ e.preventDefault(); lastFired = input.value; onComplete && onComplete(input.value); }
+  });
+  return {
+    value: () => input.value,
+    clear(){ input.value = ''; lastFired = ''; root.classList.remove('is-error', 'is-match', 'is-busy'); render(); },
+    focus(){ input.focus({preventScroll:true}); },
+    error(){ root.classList.add('is-error'); if (!reduceMotion.matches){ root.classList.remove('is-shake'); void root.offsetWidth; root.classList.add('is-shake'); } },
+    busy(on){ root.classList.toggle('is-busy', on); input.disabled = on; },
+    match(on){ root.classList.toggle('is-match', on); },
+  };
+}
+
+/* ---------- 7. AUTHENTICATION ----------
+   PIN hashing is unchanged from the original so existing PINs keep working.
+   It is a light client-side check for a private two-person app, not strong auth. */
+function hashPin(pin){
+  let h = 5381;
+  for (let c of pin) h = ((h << 5) + h) ^ c.charCodeAt(0);
+  return (h >>> 0).toString(16);
+}
+const loginPin = createPinField($('#pin-login'), { onComplete: () => doLogin(), onChange: () => setMsg('#login-msg', '') });
+const newPin = createPinField($('#pin-new'), { onComplete: () => confirmPin.focus(), onChange: checkSetupPins });
+const confirmPin = createPinField($('#pin-confirm'), { onChange: checkSetupPins });
+
+function setMsg(sel, text, ok = false){ const el = $(sel); el.textContent = text; el.classList.toggle('is-ok', ok); }
+function setAuthView(view){ $('#view-login').hidden = view !== 'login'; $('#view-setup').hidden = view !== 'setup'; }
+
+async function ensurePinsKnown(){
+  if (state.pinsExist) return state.pinsExist;
+  const snap = await dbGet('pins');
+  const v = snap.exists() ? snap.val() : {};
+  state.pinsExist = { a: !!(v && v.a), b: !!(v && v.b) };
+  return state.pinsExist;
+}
+function openLogin(u){
+  setAuthView('login');
+  showScreen('auth');
+  updateDayLabels();
+  selectLoginUser(u || localStorage.getItem(LAST_USER_KEY) || 'a');
+}
+function selectLoginUser(u){
+  if (state.loginBusy || !USERS[u]) return;
+  state.loginUser = u;
+  $$('[data-login-user]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.loginUser === u)));
+  const card = $('#view-login');
+  card.classList.toggle('theme-a', u === 'a'); card.classList.toggle('theme-b', u === 'b');
+  $('#login-username').value = USERS[u].name;
+  loginPin.clear();
+  setMsg('#login-msg', '');
+  const noProfile = state.pinsExist && !state.pinsExist[u];
+  $('#login-create').hidden = !noProfile;
+  $('#login-create').textContent = `Create a PIN for ${USERS[u].name}`;
+  if (noProfile) setMsg('#login-msg', `${USERS[u].name} doesn't have a PIN yet.`);
+  loginPin.focus();
+}
+async function doLogin(){
+  if (state.loginBusy) return;
+  const pin = loginPin.value();
+  if (pin.length < 4){ setMsg('#login-msg', 'Enter all 4 digits of your PIN.'); loginPin.focus(); return; }
+  const u = state.loginUser;
+  state.loginBusy = true;
+  loginPin.busy(true);
+  const btn = $('#login-btn'); btn.disabled = true; btn.textContent = 'Checking PIN…';
+  try{
+    const snap = await dbGet('pins/' + u);
+    if (!snap.exists()){
+      state.pinsExist = { ...(state.pinsExist || {a:false,b:false}), [u]: false };
+      loginPin.busy(false); loginPin.clear(); loginPin.error();
+      setMsg('#login-msg', `${USERS[u].name} doesn't have a PIN yet.`);
+      $('#login-create').hidden = false;
+      return;
+    }
+    if (snap.val() !== hashPin(pin)){
+      loginPin.busy(false); loginPin.clear(); loginPin.error();
+      setMsg('#login-msg', "That PIN doesn't match. Try again.");
+      loginPin.focus();
+      return;
+    }
+    state.currentUser = u;
+    sessionStorage.setItem(SESSION_KEY, u);
+    localStorage.setItem(LAST_USER_KEY, u);
+    loginPin.busy(false); loginPin.clear();
+    enterApp();
+  } catch(e){
+    loginPin.busy(false); loginPin.error();
+    setMsg('#login-msg', `Couldn't check the PIN. ${errText(e)}`);
+  } finally {
+    state.loginBusy = false;
+    loginPin.busy(false);
+    btn.disabled = false; btn.textContent = 'Continue';
+  }
+}
+
+function openSetup(mode, u){
+  state.setupMode = mode;
+  state.setupUser = u || null;
+  const reset = mode === 'reset';
+  $('#setup-title').textContent = reset ? 'Reset your PIN' : 'Create your PIN';
+  $('#setup-lead').textContent = reset
+    ? `Set a new 4-digit PIN for ${USERS[u].name}. You'll log in again afterwards.`
+    : 'Choose your profile and set a 4-digit PIN.';
+  $('#setup-btn').textContent = reset ? 'Save new PIN' : 'Create PIN';
+  // Reset is locked to the logged-in person (the old flow allowed picking the partner).
+  $$('[data-setup-user]').forEach(b => { b.disabled = reset && b.dataset.setupUser !== u; });
+  const anyProfile = state.pinsExist && (state.pinsExist.a || state.pinsExist.b);
+  $('#setup-back').hidden = !(reset || anyProfile);
+  $('#setup-back').textContent = reset ? 'Back to StudyBuddy' : 'Back to login';
+  newPin.clear(); confirmPin.clear(); setMsg('#setup-msg', '');
+  chooseSetupUser(state.setupUser);
+  setAuthView('setup');
+  showScreen('auth');
+  if (state.setupUser) newPin.focus();
+}
+function chooseSetupUser(u){
+  if (state.setupMode === 'reset' && u !== state.currentUser) return;
+  state.setupUser = u;
+  $$('[data-setup-user]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.setupUser === u)));
+  const card = $('#view-setup');
+  card.classList.toggle('theme-a', u !== 'b'); card.classList.toggle('theme-b', u === 'b');
+  $('#setup-username').value = u ? USERS[u].name : '';
+}
+function checkSetupPins(){
+  setMsg('#setup-msg', '');
+  const a = newPin.value(), b = confirmPin.value();
+  confirmPin.match(a.length === 4 && b === a);
+  if (b.length === 4 && a.length === 4 && a !== b){ confirmPin.error(); setMsg('#setup-msg', "The two PINs don't match."); }
+}
+async function doSetup(){
+  if (state.setupBusy) return;
+  const u = state.setupUser;
+  if (!u){ setMsg('#setup-msg', 'Choose whose PIN this is.'); return; }
+  const pin = newPin.value(), conf = confirmPin.value();
+  if (pin.length < 4){ setMsg('#setup-msg', 'Enter a 4-digit PIN.'); newPin.focus(); return; }
+  if (pin !== conf){ setMsg('#setup-msg', "The two PINs don't match."); confirmPin.error(); confirmPin.focus(); return; }
+  state.setupBusy = true;
+  const btn = $('#setup-btn'); btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    const existing = await dbGet('pins/' + u);
+    if (state.setupMode === 'create' && existing.exists()){
+      setMsg('#setup-msg', `${USERS[u].name} already has a PIN. Log in, then use Reset PIN from the profile menu.`);
+      return;
+    }
+    await withTimeout(dbSet('pins/' + u, hashPin(pin)), FB_TIMEOUT_MS, 'Firebase did not confirm the new PIN within 15 seconds.');
+    state.pinsExist = { ...(state.pinsExist || {a:false,b:false}), [u]: true };
+    const wasReset = state.setupMode === 'reset';
+    if (wasReset) leaveApp();
+    toast(wasReset ? 'PIN updated. Log in with your new PIN.' : 'PIN created. Log in to start.');
+    localStorage.setItem(LAST_USER_KEY, u);
+    openLogin(u);
+  } catch(e){
+    setMsg('#setup-msg', `Couldn't save the PIN. ${errText(e)}`);
+  } finally {
+    state.setupBusy = false;
+    btn.disabled = false;
+    btn.textContent = state.setupMode === 'reset' ? 'Save new PIN' : 'Create PIN';
+  }
+}
+function setupBack(){
+  if (state.setupMode === 'reset' && state.currentUser){ showScreen('app'); return; }
+  openLogin(state.setupUser || state.loginUser);
+}
+function logout(){
+  closeMenu();
+  if (isFormDirty() && !confirm('You have unsaved study time. Log out anyway?')) return;
+  const u = state.currentUser;
+  leaveApp();
+  openLogin(u);
+}
+function leaveApp(){
+  stopVoice(true);
+  state.unsubs.forEach(fn => { try { fn(); } catch {} });
+  state.unsubs = [];
+  Object.values(state.timers).forEach(t => { clearTimeout(t); clearInterval(t); });
+  state.currentUser = null;
+  state.entries = {}; state.loaded = false; state.deltas.clear(); state.dataVersion++;
+  sessionStorage.removeItem(SESSION_KEY);
+  document.body.classList.remove('theme-a', 'theme-b');
+}
+
+/* ---------- 8. STUDY LOG ---------- */
+const inputs = {};   // subject key -> <input>
+let cachedDayMemo = { v:-1, map:new Map() };
+
+function getDay(date, u, entries = state.entries){
+  const useMemo = entries === state.entries;
+  const k = date + '|' + u;
+  if (useMemo){
+    if (cachedDayMemo.v !== state.dataVersion) cachedDayMemo = { v: state.dataVersion, map: new Map() };
+    const hit = cachedDayMemo.map.get(k); if (hit) return hit;
+  }
+  const raw = entries[date] && entries[date][u];
+  const out = { total:0, updatedAt:null, reason:null, exists: !!raw };
+  SUBJECT_KEYS.forEach(key => { const v = raw ? clampMin(raw[key]) : 0; out[key] = v; out.total += v; });
+  if (raw && raw._meta && typeof raw._meta === 'object'){
+    out.updatedAt = typeof raw._meta.updatedAt === 'string' ? raw._meta.updatedAt : null;
+    out.reason = raw._meta.editReason || null;
+  }
+  if (useMemo) cachedDayMemo.map.set(k, out);
+  return out;
+}
+
+function buildLogCards(){
+  const me = state.currentUser, pt = partnerOf(me);
+  const meCard = $('#me-card');
+  meCard.className = `log-card me-card u-${me} skeleton`;
+  meCard.innerHTML = `
+    <header class="card-head">
+      <span class="avatar">${USERS[me].initials}</span>
+      <div class="card-who"><h2 id="me-card-name">${USERS[me].name}</h2><p>${ICON_PEN}Your log</p></div>
+      <div class="punch"><span>Last punch</span><strong id="me-punch">—</strong></div>
+    </header>
+    <ol class="subjects">
+      ${SUBJECTS.map(s => `
+      <li class="subj" data-key="${s.key}">
+        <div class="subj-top"><span class="subj-code">${s.label}</span><span class="subj-name">${s.full}</span><span class="subj-hm" data-hm></span></div>
+        <div class="subj-ctrl">
+          <div class="stepper">
+            <button class="step" type="button" data-step="-${STEP_MINUTES}" aria-label="${STEP_MINUTES} minutes less for ${s.full}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 12h12"/></svg></button>
+            <label class="val"><input type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off" placeholder="0" aria-label="${s.full} minutes" data-input="${s.key}"/><span>min</span></label>
+            <button class="step" type="button" data-step="${STEP_MINUTES}" aria-label="${STEP_MINUTES} minutes more for ${s.full}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></button>
+          </div>
+          <div class="quick" role="group" aria-label="Quick add to ${s.full}">
+            <button type="button" data-add="15" aria-label="Add 15 minutes to ${s.full}">+15</button>
+            <button type="button" data-add="30" aria-label="Add 30 minutes to ${s.full}">+30</button>
+            <button type="button" data-add="60" aria-label="Add 1 hour to ${s.full}">+1h</button>
+          </div>
+        </div>
+      </li>`).join('')}
+    </ol>
+    <footer class="card-foot">
+      <div class="total"><span>Day total</span><strong id="me-total" aria-live="polite">0m</strong></div>
+      <button class="btn-save" id="save-btn" type="button" data-state="idle" disabled>
+        <span class="spin" aria-hidden="true"></span>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+        <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+        <span id="save-label">Save punch</span>
+      </button>
+      <p class="save-status" id="save-status" role="status" aria-live="polite">Loading your saved study time…</p>
+    </footer>`;
+
+  const pCard = $('#partner-card');
+  pCard.className = `log-card partner-card u-${pt} skeleton`;
+  pCard.innerHTML = `
+    <header class="card-head">
+      <span class="avatar">${USERS[pt].initials}</span>
+      <div class="card-who"><h2 id="partner-card-name">${USERS[pt].name}</h2><span class="view-badge">${ICON_LOCK}View only</span></div>
+      <div class="punch"><span>Last punch</span><strong id="pt-punch">—</strong></div>
+    </header>
+    <ol class="subjects">
+      ${SUBJECTS.map(s => `
+      <li class="subj is-view" data-pkey="${s.key}">
+        <div class="subj-top"><span class="subj-code">${s.label}</span><span class="subj-name">${s.full}</span></div>
+        <div class="p-val is-zero" aria-label="${s.full}"><strong>–</strong><em hidden></em></div>
+      </li>`).join('')}
+    </ol>
+    <footer class="card-foot p-foot">
+      <div class="total"><span>Day total</span><strong id="pt-total">—</strong></div>
+      <span class="p-lock">${ICON_LOCK}Only ${USERS[pt].name.split(" ")[0]} can punch</span>
+    </footer>`;
+
+  // Wire subject controls
+  SUBJECT_KEYS.forEach(k => { inputs[k] = $(`[data-input="${k}"]`, meCard); });
+  $$('.subj', meCard).forEach(row => {
+    const key = row.dataset.key;
+    $$('.step', row).forEach(btn => bindHold(btn, () => adjust(key, +btn.dataset.step)));
+    $$('[data-add]', row).forEach(btn => btn.addEventListener('click', () => adjust(key, +btn.dataset.add)));
+    const inp = inputs[key];
+    inp.addEventListener('focus', () => requestAnimationFrame(() => inp.select()));
+    inp.addEventListener('input', () => {
+      let digits = inp.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 3);
+      let capped = false;
+      if (digits && +digits > MAX_SUBJECT_MINUTES){ digits = String(MAX_SUBJECT_MINUTES); capped = true; }
+      if (inp.value !== digits) inp.value = digits;
+      showCap(row, capped);
+      onFormChanged();
+    });
+    inp.addEventListener('blur', () => { const v = clampMin(inp.value); inp.value = v ? String(v) : ''; onFormChanged(); });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+  });
+  $('#save-btn').addEventListener('click', savePunch);
+}
+
+/** Tap = one step. Press and hold = repeat. A scroll that starts on the button never changes the value. */
+function bindHold(btn, fn){
+  let holdTimer = null, repeatTimer = null, held = false;
+  const stop = () => { clearTimeout(holdTimer); clearInterval(repeatTimer); holdTimer = repeatTimer = null; };
+  btn.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    held = false; stop();
+    holdTimer = setTimeout(() => { held = true; fn(); repeatTimer = setInterval(fn, 95); }, 420);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, stop));
+  btn.addEventListener('click', () => { if (held){ held = false; return; } fn(); });
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+}
+function showCap(row, on){
+  let note = $('.cap-note', row);
+  if (on && !note){ note = document.createElement('p'); note.className = 'cap-note'; note.textContent = 'Capped at 10 hours for one subject.'; row.appendChild(note); }
+  if (note) note.hidden = !on;
+  if (on) setTimeout(() => { if (note) note.hidden = true; }, 2600);
+}
+function readInput(k){ return clampMin(inputs[k] ? inputs[k].value : 0); }
+function writeInput(k, v, animate = false){
+  inputs[k].value = v ? String(v) : '';
+  if (animate) bump(inputs[k].parentElement);
+}
+function formValues(){ const o = {}; SUBJECT_KEYS.forEach(k => { o[k] = readInput(k); }); return o; }
+function isFormDirty(entries = state.entries){
+  if (!state.loaded || !state.currentUser || !state.logDate) return false;
+  const saved = getDay(state.logDate, state.currentUser, entries), f = formValues();
+  return SUBJECT_KEYS.some(k => f[k] !== saved[k]);
+}
+function adjust(key, delta){
+  if (!state.loaded) return;
+  const raw = readInput(key) + delta;
+  const v = Math.max(0, Math.min(MAX_SUBJECT_MINUTES, raw));
+  const row = $(`.subj[data-key="${key}"]`);
+  showCap(row, raw > MAX_SUBJECT_MINUTES);
+  if (v === readInput(key)) return;
+  writeInput(key, v, true);
+  onFormChanged();
+}
+function onFormChanged(){
+  const saved = state.loaded ? getDay(state.logDate, state.currentUser) : null;
+  let total = 0;
+  SUBJECT_KEYS.forEach(k => {
+    const v = readInput(k); total += v;
+    const row = $(`.subj[data-key="${k}"]`);
+    $('[data-hm]', row).textContent = v >= 60 ? fmtMin(v) : '';
+    row.classList.toggle('is-changed', !!saved && v !== saved[k]);
+  });
+  const tEl = $('#me-total');
+  if (tEl.textContent !== fmtMin(total)){ tEl.textContent = fmtMin(total); bump(tEl); }
+  updateSaveStatus();
+}
+function updateSaveStatus(msg, tone){
+  const el = $('#save-status'), btn = $('#save-btn');
+  if (!el) return;
+  btn.disabled = !state.loaded || state.saving;
+  el.className = 'save-status';
+  if (msg){ el.textContent = msg; if (tone) el.classList.add('is-' + tone); return; }
+  const past = state.logDate && state.logDate < state.today;
+  if (!state.loaded){ el.textContent = 'Loading your saved study time…'; return; }
+  if (state.saving){ el.textContent = 'Saving to StudyBuddy…'; return; }
+  if (isFormDirty()){
+    el.textContent = past ? 'Unsaved changes. A short reason is needed for a past day.' : 'Unsaved changes';
+    el.classList.add('is-dirty');
+    return;
+  }
+  if (state.lastSaveAt && Date.now() - state.lastSaveAt < 60000){ el.textContent = 'Saved'; el.classList.add('is-ok'); return; }
+  el.textContent = past ? 'Past day. Changes need a short reason.' : 'Everything is saved.';
+}
+function fillMyCard(){
+  const d = getDay(state.logDate, state.currentUser);
+  SUBJECT_KEYS.forEach(k => { writeInput(k, d[k]); showCap($(`.subj[data-key="${k}"]`), false); });
+  $('#me-card').classList.toggle('skeleton', !state.loaded);
+  renderPunch('#me-punch', d);
+  onFormChanged();
+}
+function renderPunch(sel, day){
+  const el = $(sel); if (!el) return;
+  el.textContent = day.updatedAt ? fmtTime(day.updatedAt) : '—';
+  el.title = day.updatedAt ? new Date(day.updatedAt).toLocaleString('en-GB', {dateStyle:'medium', timeStyle:'short'}) : 'No saved punch for this day';
+}
+function renderPartnerCard(){
+  const pt = partnerOf(state.currentUser);
+  const card = $('#partner-card');
+  card.classList.toggle('skeleton', !state.loaded);
+  if (!state.loaded) return;
+  const d = getDay(state.logDate, pt);
+  SUBJECT_KEYS.forEach(k => {
+    const box = $(`[data-pkey="${k}"] .p-val`, card), m = d[k] || 0;
+    box.classList.toggle('is-zero', !m);
+    $('strong', box).innerHTML = m ? `${m}<small>min</small>` : '–';
+    const hm = $('em', box);
+    hm.hidden = m < 60; hm.textContent = m >= 60 ? fmtMin(m) : '';
+    box.setAttribute('aria-label', `${SUBJECTS.find(s => s.key === k).full}: ${m ? fmtMin(m) : 'nothing logged'}`);
+  });
+  $('#pt-total').textContent = fmtMin(d.total);
+  renderPunch('#pt-punch', d);
+  const foot = $('.p-foot', card);
+  let note = $('.p-note', foot);
+  if (!d.exists){
+    if (!note){ note = document.createElement('p'); note.className = 'p-note'; foot.appendChild(note); }
+    note.textContent = state.logDate === state.today ? 'Nothing logged yet today.' : 'Nothing logged for this day.';
+  } else if (note) note.remove();
+}
+
+/* Date control */
+function renderDateControl(){
+  const d = state.logDate, t = state.today;
+  const inp = $('#log-date');
+  inp.value = d; inp.max = t;
+  $('#date-main').textContent = fmtDate(d, {weekday:'short', day:'numeric', month:'short'});
+  const sub = $('#date-sub');
+  const past = d < t;
+  sub.textContent = d === t ? 'Current study day' : d === addDays(t, -1) ? 'Yesterday, needs a reason' : 'Past day, needs a reason';
+  sub.classList.toggle('is-past', past);
+  $('#date-next').disabled = d >= t;
+  $('#date-today').hidden = !past;
+}
+function setLogDate(d){
+  state.logDate = d;
+  renderDateControl();
+  if (state.loaded){ fillMyCard(); renderPartnerCard(); }
+  updateSaveStatus();
+}
+function requestDateChange(d){
+  if (!isDateStr(d)){ toast('Choose a valid date.', 'err'); renderDateControl(); return; }
+  if (d > state.today){ toast(`Future days can't be logged. Today's study day is ${fmtDate(state.today)}.`, 'err'); renderDateControl(); return; }
+  if (d === state.logDate) return;
+  if (isFormDirty() && !confirm(`Discard unsaved changes for ${fmtDate(state.logDate, {day:'numeric', month:'long'})}?`)){ renderDateControl(); return; }
+  stopVoice(true); hideVoiceStrip();
+  setLogDate(d);
+}
+
+/* Past-date reason dialog (same audit rule as before: 4 to 180 characters) */
+let reasonResolve = null;
+function askReason(date){
+  const dlg = $('#reason-dialog'), input = $('#reason-input');
+  $('#reason-form').className = 'dlg ' + (state.currentUser === 'b' ? 'theme-b' : 'theme-a');
+  $('#reason-copy').textContent = `The study day for ${fmtDate(date, {weekday:'long', day:'numeric', month:'long'})} has closed. Add a short reason with the update.`;
+  $('#reason-err').textContent = '';
+  input.value = ''; $('#reason-count').textContent = '0/180';
+  return new Promise(resolve => {
+    reasonResolve = resolve;
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+    setTimeout(() => input.focus(), 30);
+  });
+}
+function closeReason(value){
+  const dlg = $('#reason-dialog');
+  if (dlg.open){ if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open'); }
+  if (reasonResolve){ const r = reasonResolve; reasonResolve = null; r(value); }
+}
+
+/* Save */
+async function savePunch(){
+  if (state.saving || !state.loaded) return;
+  const me = state.currentUser, date = state.logDate;
+  state.today = todayStr();
+  if (!isDateStr(date) || date > state.today){ updateSaveStatus('Choose a valid study date before saving.', 'error'); return; }
+  let reason = '';
+  if (date < state.today){
+    reason = await askReason(date);
+    if (!reason){ updateSaveStatus('Not saved. A reason is needed to update a past day.', 'dirty'); return; }
+  }
+  const entry = {};
+  SUBJECT_KEYS.forEach(k => { entry[k] = readInput(k); });
+  entry._meta = { updatedAt: new Date().toISOString() };
+  if (reason) entry._meta.editReason = reason;
+
+  const prevRaw = state.entries[date] && state.entries[date][me];
+  const btn = $('#save-btn');
+  state.saving = true;
+  btn.dataset.state = 'saving'; $('#save-label').textContent = 'Saving';
+  updateSaveStatus();
+  const write = dbSet(`entries/${date}/${me}`, entry);
+  try{
+    await withTimeout(write, FB_TIMEOUT_MS, 'Firebase has not confirmed the save after 15 seconds.');
+    state.deltas.set(`${date}|${me}|${entry._meta.updatedAt}`, diffEntries(prevRaw, entry));
+    state.entries[date] = { ...(state.entries[date] || {}), [me]: entry };
+    state.dataVersion++;
+    state.saving = false;
+    state.lastSaveAt = Date.now();
+    hideVoiceStrip();
+    saveSuccess();
+    renderPunch('#me-punch', getDay(date, me));
+    onFormChanged();
+    requestProgressRender();
+  } catch(e){
+    state.saving = false;
+    btn.dataset.state = 'error'; $('#save-label').textContent = 'Try again';
+    const offline = /confirmed/.test(e.message);
+    updateSaveStatus(offline
+      ? 'Not confirmed yet. No connection to Firebase; it will retry while this page stays open.'
+      : `Not saved: ${errText(e)}`, 'error');
+    toast(offline ? 'Save not confirmed yet' : 'Save failed', 'err');
+    if (offline) write.then(() => { toast('Saved after reconnecting'); state.lastSaveAt = Date.now(); btn.dataset.state = 'idle'; $('#save-label').textContent = 'Save punch'; updateSaveStatus(); }).catch(() => {});
+  }
+}
+function saveSuccess(){
+  const btn = $('#save-btn');
+  btn.dataset.state = 'saved'; $('#save-label').textContent = 'Saved';
+  haptic(14);
+  if (!reduceMotion.matches){ const s = $('#shoot'); s.classList.remove('is-go'); void s.offsetWidth; s.classList.add('is-go'); }
+  clearTimeout(state.timers.saveOk);
+  state.timers.saveOk = setTimeout(() => { btn.dataset.state = 'idle'; $('#save-label').textContent = 'Save punch'; updateSaveStatus(); }, 1800);
+  updateSaveStatus(`Saved at ${fmtTime(new Date().toISOString())}`, 'ok');
+}
+function diffEntries(before, after){
+  return SUBJECT_KEYS.map(k => ({ key:k, diff: clampMin(after && after[k]) - clampMin(before && before[k]) })).filter(d => d.diff !== 0);
+}
+
+/* ---------- 9. VOICE PUNCH ----------
+   Voice only edits the form. Nothing is written until Save punch. */
+const SUBJECT_ALIASES = {
+  fr:  ['financial reporting', 'financial report', 'reporting', 'accounting', 'accounts', 'f r', 'fr'],
+  afm: ['advanced financial management', 'advance financial management', 'strategic financial management', 'financial management', 'afm', 'a f m', 'sfm'],
+  dt:  ['direct taxes', 'direct taxation', 'direct tax', 'income tax', 'direct', 'dt', 'd t'],
+  idt: ['indirect taxes', 'indirect taxation', 'indirect tax', 'indirect', 'gst', 'customs', 'idt', 'i d t'],
+  aa:  ['advanced auditing', 'advanced audit', 'advance audit', 'auditing', 'audit', 'aa', 'a a'],
+};
+const ALIAS_LIST = Object.entries(SUBJECT_ALIASES).flatMap(([k, arr]) => arr.map(a => [a, k])).sort((x, y) => y[0].length - x[0].length);
+const ALIAS_RE = new RegExp('\\b(' + ALIAS_LIST.map(([a]) => a.replace(/ /g, '\\s')).join('|') + ')\\b', 'g');
+const ALIAS_MAP = Object.fromEntries(ALIAS_LIST);
+const NUM_WORDS = {zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,
+  fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fourty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+
+function wordsToDigits(text){
+  const toks = text.split(' '), out = [];
+  for (let i = 0; i < toks.length; i++){
+    if (!(toks[i] in NUM_WORDS)){ out.push(toks[i]); continue; }
+    let cur = 0;
+    while (i < toks.length){
+      const t = toks[i];
+      if (t in NUM_WORDS){ cur += NUM_WORDS[t]; i++; }
+      else if (t === 'hundred' && cur){ cur *= 100; i++; }
+      else if (t === 'and' && toks[i-1] === 'hundred' && (toks[i+1] in NUM_WORDS)){ i++; }
+      else break;
+    }
+    i--; out.push(String(cur));
+  }
+  return out.join(' ');
+}
+function normalizeSpeech(raw){
+  let t = ' ' + String(raw).toLowerCase() + ' ';
+  t = t.replace(/\b([a-z])\.(?=\s?[a-z]\b\.?)/g, '$1').replace(/\b([a-z])\.(?=\s|$)/g, '$1');   // "f.r." -> "fr"
+  t = t.replace(/[’']/g, '').replace(/-/g, ' ').replace(/[^a-z0-9.,;:\s]/g, ' ').replace(/\s+/g, ' ');
+  t = wordsToDigits(t.trim());
+  t = t.replace(/(\d+(?:\.\d+)?) and a half (hours?|hrs?)\b/g, (_, n) => `${+n + 0.5} hours`);
+  t = t.replace(/\b(\d+|an|a) (hours?|hrs?) and a half\b/g, (_, n) => `${(/\d/.test(n) ? +n : 1) * 60 + 30} minutes`);
+  t = t.replace(/\bhalf (an |a )?(hour|hr)\b/g, '30 minutes');
+  t = t.replace(/\b(a )?quarter (of an |of a )?(hour|hr)\b/g, '15 minutes');
+  t = t.replace(/\b(an|a) (hour|hr)\b/g, '1 hour');
+  t = t.replace(/\b(\d{1,2}):(\d{2})\b/g, (_, h, m) => `${+h} hours ${+m} minutes`);
+  t = t.replace(/\b(hours?|hrs?) and (\d)/g, '$1 $2');
+  return t.replace(/\s+/g, ' ').trim();
+}
+const DUR_RE = /(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|hr|h)\b(?:\s*(\d+)\s*(?:minutes?|mins?|min|m)?\b)?|(\d+(?:\.\d+)?)\s*(?:minutes?|mins?|min|m)\b/g;
+function analyseClause(c){
+  const subjects = [...c.matchAll(ALIAS_RE)].map(m => ALIAS_MAP[m[1].replace(/\s+/g, ' ')]);
+  const withoutSubjects = c.replace(ALIAS_RE, ' ');
+  let mins = null;
+  const m = [...withoutSubjects.matchAll(DUR_RE)][0];
+  if (m) mins = m[3] != null ? parseFloat(m[3]) : parseFloat(m[1]) * 60 + (m[2] ? parseFloat(m[2]) : 0);
+  else { const bare = withoutSubjects.match(/\b(\d+(?:\.\d+)?)\b/); if (bare) mins = parseFloat(bare[1]); }
+  let op = 'set';
+  if (/\b(add|added|plus|another|more|extra|increase|increment|put in)\b/.test(c)) op = 'add';
+  else if (/\b(remove|subtract|minus|less|reduce|deduct|take off|take away|cut)\b/.test(c)) op = mins == null ? 'clear' : 'sub';
+  if (mins == null && /\b(clear|reset|zero|nothing|none)\b/.test(c)) op = 'clear';
+  return { text:c, subjects:[...new Set(subjects)], mins: mins == null ? null : Math.round(mins), op };
+}
+/** Pure parser. Returns {changes:[{key,before,after,op,mins,capped}], errors:[string]} */
+function parseVoiceCommand(transcript, current){
+  const norm = normalizeSpeech(transcript);
+  let clauses = norm.split(/\s*(?:,|;|\band then\b|\bthen\b|\balso\b|\band\b)\s*/).map(s => s.trim()).filter(Boolean).map(analyseClause);
+  // Merge "financial reporting, 35 minutes" style splits.
+  for (let i = 0; i < clauses.length - 1; i++){
+    const a = clauses[i], b = clauses[i+1];
+    const aNeedsDur = a.subjects.length && a.mins == null && a.op !== 'clear';
+    const aNeedsSub = !a.subjects.length && a.mins != null;
+    if ((aNeedsDur && !b.subjects.length && b.mins != null) || (aNeedsSub && b.subjects.length && b.mins == null)){
+      clauses.splice(i, 2, analyseClause(a.text + ' ' + b.text)); i--;
+    }
+  }
+  const work = { ...current }, changes = [], errors = [];
+  clauses = clauses.filter(c => c.subjects.length || c.mins != null);
+  if (!clauses.length) errors.push('No subject or time was recognised.');
+  for (const c of clauses){
+    if (!c.subjects.length){ errors.push(`No subject heard with ${fmtMin(c.mins)}.`); continue; }
+    if (c.subjects.length > 1){ errors.push(`Heard ${c.subjects.map(k => SUBJECT_BY_KEY[k].label).join(' and ')} together. Say one subject at a time.`); continue; }
+    const key = c.subjects[0], label = SUBJECT_BY_KEY[key].label;
+    if (c.op !== 'clear'){
+      if (c.mins == null){ errors.push(`No time heard for ${label}.`); continue; }
+      if (!(c.mins > 0) && c.op !== 'set'){ errors.push(`${label}: the time needs to be more than zero.`); continue; }
+      if (c.op === 'set' && c.mins > MAX_SUBJECT_MINUTES){ errors.push(`${label}: ${fmtMin(c.mins)} is over the 10-hour limit for one subject.`); continue; }
+    }
+    const before = work[key];
+    let after = c.op === 'add' ? before + c.mins : c.op === 'sub' ? before - c.mins : c.op === 'clear' ? 0 : c.mins;
+    const capped = after > MAX_SUBJECT_MINUTES;
+    after = Math.max(0, Math.min(MAX_SUBJECT_MINUTES, after));
+    work[key] = after;
+    changes.push({ key, before, after, op:c.op, mins:c.mins, capped });
+  }
+  return { changes, errors };
+}
+
+function voiceSupported(){ return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+function showVoiceStrip(kind, html, undo = false){
+  const strip = $('#voice-strip');
+  strip.hidden = false;
+  strip.className = 'voice-strip is-' + kind;
+  $('#voice-body').innerHTML = html;
+  $('#voice-undo').hidden = !undo;
+}
+function hideVoiceStrip(){ $('#voice-strip').hidden = true; state.voice.undo = null; }
+function setListening(on){
+  state.voice.listening = on;
+  $('#voice-btn').classList.toggle('is-listening', on);
+  $('#voice-btn-label').textContent = on ? 'Listening' : 'Voice';
+}
+function stopVoice(silent){
+  const rec = state.voice.rec;
+  if (rec){ rec.onresult = rec.onerror = rec.onend = null; try { rec.abort(); } catch {} }
+  state.voice.rec = null;
+  setListening(false);
+  if (silent === true && $('#voice-strip').classList.contains('is-listening')) hideVoiceStrip();
+}
+function startVoice(){
+  if (state.voice.listening){ try { state.voice.rec && state.voice.rec.stop(); } catch {} return; }
+  if (!state.loaded){ showVoiceStrip('error', 'Your saved study time is still loading. Try again in a moment.'); return; }
+  if (!voiceSupported()){
+    showVoiceStrip('error', "Voice punch isn't available in this browser. Chrome on Android or desktop supports it. You can still log with the controls below.");
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new SR();
+  rec.lang = 'en-IN'; rec.interimResults = true; rec.maxAlternatives = 3; rec.continuous = false;
+  let finalHandled = false;
+  rec.onresult = e => {
+    const res = e.results[e.results.length - 1];
+    if (!res.isFinal){ showVoiceStrip('listening', `<q>${esc(res[0].transcript)}</q>`); return; }
+    finalHandled = true;
+    const alts = [...res].map(a => a.transcript);
+    applyVoice(alts);
+  };
+  rec.onerror = e => {
+    finalHandled = true;
+    const msgs = {
+      'not-allowed': 'Microphone access was blocked. Allow the microphone for this site in your browser settings to use Voice punch.',
+      'service-not-allowed': 'Speech recognition is turned off for this browser.',
+      'no-speech': "Didn't catch anything. Tap Voice and try again, for example “Add 30 minutes to FR”.",
+      'audio-capture': 'No microphone was found on this device.',
+      'network': 'Voice punch needs an internet connection for speech recognition.',
+      'aborted': null,
+    };
+    const m = msgs[e.error];
+    if (m === null){ hideVoiceStrip(); return; }
+    showVoiceStrip('error', esc(m || `Voice punch stopped: ${e.error}.`));
+  };
+  rec.onend = () => {
+    setListening(false); state.voice.rec = null;
+    if (!finalHandled) showVoiceStrip('error', "Didn't catch anything. Tap Voice and try again.");
+  };
+  try{
+    rec.start();
+    state.voice.rec = rec;
+    setListening(true);
+    showVoiceStrip('listening', 'Listening. Try <q>Financial Reporting 35 minutes</q> or <q>Add 20 minutes to Audit</q>.');
+  } catch(e){
+    showVoiceStrip('error', esc(`Couldn't start the microphone. ${errText(e)}`));
+  }
+}
+function applyVoice(alternatives){
+  const current = formValues();
+  let best = null;
+  for (const alt of alternatives){
+    const r = parseVoiceCommand(alt, current);
+    const score = r.changes.length * 10 - r.errors.length;
+    if (!best || score > best.score) best = { ...r, alt, score };
+  }
+  const heard = `Heard <q>${esc(best.alt.trim())}</q>`;
+  if (!best.changes.length){
+    showVoiceStrip('error', `${heard}. ${esc(best.errors[0] || 'Nothing to change.')} Try <q>FR 35 minutes</q>.`);
+    return;
+  }
+  state.voice.undo = current;
+  best.changes.forEach(c => { writeInput(c.key, c.after, true); });
+  onFormChanged();
+  const chips = best.changes.map(c => {
+    const l = SUBJECT_BY_KEY[c.key].label;
+    const txt = c.op === 'set' || c.op === 'clear' ? `${l} set to ${c.after} min` : `${l} ${c.before} → ${c.after} min`;
+    return `<li>${esc(txt)}${c.capped ? ' (10h cap)' : ''}</li>`;
+  }).join('');
+  const extra = best.errors.length ? ` <span>${esc(best.errors.join(' '))}</span>` : '';
+  showVoiceStrip('done', `${heard}. Check it, then save punch.<ul>${chips}</ul>${extra}`, true);
+}
+
+/* ---------- 10. ANALYTICS ---------- */
+const RANGES = [
+  {id:'today', label:'Today'}, {id:'2d', label:'2 days', days:2}, {id:'4d', label:'4 days', days:4},
+  {id:'7d', label:'7 days', days:7}, {id:'14d', label:'14 days', days:14}, {id:'21d', label:'21 days', days:21},
+  {id:'month', label:'Month'}, {id:'year', label:'Year'}, {id:'all', label:'All time'}, {id:'custom', label:'Custom'},
+];
+function earliestDate(){
+  let min = null;
+  for (const d of Object.keys(state.entries)){
+    if (min && d >= min) continue;
+    if (getDay(d, 'a').total || getDay(d, 'b').total) min = d;
+  }
+  return min;
+}
+/** The one canonical range engine. Every Progress component reads its output. */
+function resolveRange(sel = state.range){
+  const today = state.today;
+  let start = today, end = today, title;
+  const preset = RANGES.find(r => r.id === sel.id) || RANGES[3];
+  switch (preset.id){
+    case 'today': title = 'Today'; break;
+    case 'month': start = today.slice(0, 8) + '01'; title = fmtDate(today, {month:'long', year:'numeric'}); break;
+    case 'year': start = today.slice(0, 5) + '01-01'; title = today.slice(0, 4); break;
+    case 'all': start = earliestDate() || today; if (start > today) start = today; title = 'All time'; break;
+    case 'custom': start = sel.from; end = sel.to; title = 'Custom period'; break;
+    default: start = addDays(today, -(preset.days - 1)); title = `Past ${preset.days} days`;
+  }
+  const dates = [];
+  for (let d = start; d <= end && dates.length < 5000; d = addDays(d, 1)) dates.push(d);
+  return { id: preset.id, start, end, dates, days: dates.length, title };
+}
+function validateCustom(from, to){
+  if (!isDateStr(from) || !isDateStr(to)) return 'Choose both a From and a To date.';
+  if (to > state.today) return `The To date can't be after today's study day (${fmtDate(state.today, {day:'numeric', month:'long'})}).`;
+  if (from > to) return 'The From date needs to be on or before the To date.';
+  if (daysBetween(from, to) > 3660) return 'Choose a period of ten years or less.';
+  return '';
+}
+function rangeStats(range){
+  const out = {};
+  for (const u of ['a', 'b']){
+    const s = { total:0, active:0, subj:Object.fromEntries(SUBJECT_KEYS.map(k => [k, 0])), daily:[], best:null };
+    for (const d of range.dates){
+      const day = getDay(d, u);
+      s.daily.push(day.total);
+      s.total += day.total;
+      if (day.total > 0){ s.active++; if (!s.best || day.total > s.best.val) s.best = { date:d, val:day.total }; }
+      SUBJECT_KEYS.forEach(k => { s.subj[k] += day[k]; });
+    }
+    s.avg = s.active ? Math.round(s.total / s.active) : 0;
+    s.top = SUBJECT_KEYS.reduce((b, k) => (s.subj[k] > (s.subj[b] || 0) ? k : b), null);
+    if (s.top && !s.subj[s.top]) s.top = null;
+    out[u] = s;
+  }
+  out.joint = range.dates.filter(d => getDay(d, 'a').total > 0 && getDay(d, 'b').total > 0).length;
+  return out;
+}
+/** Streaks respect the 3 AM rollover: the open study day doesn't break a streak until it closes. */
+function streak(pred){
+  let d = state.today, n = 0;
+  if (!pred(d)) d = addDays(d, -1);
+  while (n < 3660 && pred(d)){ n++; d = addDays(d, -1); }
+  return n;
+}
+const userStreak = u => streak(d => getDay(d, u).total > 0);
+const jointStreak = () => streak(d => getDay(d, 'a').total > 0 && getDay(d, 'b').total > 0);
+
+function evenness(shares){
+  const tot = shares.reduce((a, b) => a + b, 0);
+  if (!tot) return null;
+  let h = 0; shares.forEach(v => { if (v){ const p = v / tot; h -= p * Math.log(p); } });
+  return h / Math.log(shares.length);
+}
+function sumWindow(u, end, n, key){ let t = 0; for (let i = 0; i < n; i++){ const d = getDay(addDays(end, -i), u); t += key ? d[key] : d.total; } return t; }
+
+/** Deterministic, neutral insights about the current user. Avoid repeating numbers shown elsewhere. */
+function buildInsights(range, st){
+  const me = state.currentUser, s = st[me], len = range.days, end = range.end, today = state.today;
+  const endsToday = end === today;
+  const out = [];
+  const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+  if (len >= 2){
+    const N = Math.min(7, Math.floor(len / 2));
+    const rec = sumWindow(me, end, N), prev = sumWindow(me, addDays(end, -N), N);
+    const lastN = N === 1 ? (endsToday ? 'Today' : 'The last day') : `Your last ${N} days`;
+    const prevN = N === 1 ? (endsToday ? 'yesterday' : 'the day before') : `the ${N} before them`;
+    if (rec || prev){
+      if (!prev) out.push(`${lastN} ${N === 1 ? 'has' : 'have'} study after a quiet stretch before.`);
+      else if (rec > prev * 1.15) out.push(`${lastN} ${N === 1 ? 'is' : 'are'} stronger than ${prevN}.`);
+      else if (rec < prev * 0.85) out.push(`${lastN} ${N === 1 ? 'is' : 'are'} lighter than ${prevN}.`);
+      else out.push(`${lastN} kept a steady pace with ${prevN}.`);
+    }
+  } else if (endsToday){
+    let sum = 0, act = 0;
+    for (let i = 1; i <= 7; i++){ const v = getDay(addDays(today, -i), me).total; if (v){ sum += v; act++; } }
+    const t = getDay(today, me).total;
+    if (act >= 2 && t > 0){
+      const avg = sum / act;
+      out.push(t >= avg * 1.1 ? 'Today is already above your usual active day this week.' : t >= avg * 0.9 ? 'Today is close to your usual active day this week.' : 'Today is still building toward your usual active day this week.');
+    } else if (!t) out.push('Nothing logged yet today. One short session keeps the rhythm going.');
+  }
+
+  if (endsToday && sumWindow(me, today, 60) > 0){
+    let worst = null;
+    for (const sub of SUBJECTS){
+      let gap = null;
+      for (let i = 0; i < 60; i++){ if (getDay(addDays(today, -i), me)[sub.key] > 0){ gap = i; break; } }
+      const g = gap == null ? 999 : gap;
+      if (g >= 4 && (!worst || g > worst.g)) worst = { g, sub };
+    }
+    if (worst) out.push(worst.g === 999 ? `${worst.sub.full} has no study logged in the last 60 days.` : `${worst.sub.full} has not been studied for ${worst.g} days.`);
+  }
+
+  if (endsToday && len > 7){
+    let c = 0; for (let i = 0; i < 7; i++) if (getDay(addDays(today, -i), me).total > 0) c++;
+    out.push(`Study was recorded on ${c} of the last 7 days.`);
+  }
+
+  if (len >= 3 && s.active >= 2 && s.best){
+    out.push(`Your strongest day in this period was ${fmtDate(s.best.date, {weekday:'long', day:'numeric', month:'long'})}, with ${fmtMin(s.best.val)}.`);
+  }
+
+  if (len >= 14){
+    const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const seen = Array(7).fill(0), act = Array(7).fill(0), mins = Array(7).fill(0);
+    range.dates.forEach(d => { const w = parseDateStr(d).getDay(); seen[w]++; const v = getDay(d, me).total; if (v){ act[w]++; mins[w] += v; } });
+    let best = -1, bestRate = 0;
+    for (let w = 0; w < 7; w++){
+      if (seen[w] < 2) continue;
+      const r = act[w] / seen[w];
+      if (r > bestRate || (r === bestRate && best >= 0 && mins[w] > mins[best])){ best = w; bestRate = r; }
+    }
+    if (best >= 0 && bestRate > 0) out.push(`Your most consistent weekday has been ${names[best]}.`);
+  }
+
+  if (len >= 14){
+    const w1 = evenness(SUBJECT_KEYS.map(k => sumWindow(me, end, 7, k)));
+    const w0 = evenness(SUBJECT_KEYS.map(k => sumWindow(me, addDays(end, -7), 7, k)));
+    if (w1 != null && w0 != null && Math.abs(w1 - w0) > 0.08){
+      out.push(w1 > w0 ? 'This week is more evenly spread across subjects than last week.' : 'This week is more concentrated on fewer subjects than last week.');
+    }
+  }
+
+  if (len >= 4 && s.total && s.top && s.subj[s.top] / s.total >= 0.5){
+    out.push(`More than half of your time in this period went to ${SUBJECT_BY_KEY[s.top].full}.`);
+  }
+
+  const pt = st[partnerOf(me)];
+  if (s.top && pt.top && s.top === pt.top && len >= 2) out.push(`You both put the most time into ${SUBJECT_BY_KEY[s.top].full} in this period.`);
+
+  return out.slice(0, 4);
+}
+
+function recentPunches(limit = 6){
+  const list = [];
+  for (const date of Object.keys(state.entries)){
+    for (const u of ['a', 'b']){
+      const d = getDay(date, u);
+      if (d.updatedAt && !isNaN(Date.parse(d.updatedAt))) list.push({ date, u, at:d.updatedAt, t:Date.parse(d.updatedAt), day:d });
+    }
+  }
+  return list.sort((x, y) => y.t - x.t).slice(0, limit);
+}
+
+/* ---------- 11. MOMENTUM CHART (lightweight SVG, no library) ---------- */
+function niceScale(max){
+  if (max <= 0) return { top:60, step:30 };
+  const steps = [15, 30, 60, 120, 180, 240, 360, 480, 600, 900, 1200];
+  const step = steps.find(s => max / s <= 3.2) || 1200;
+  return { top: Math.ceil(max / step) * step, step };
+}
+function axisLabel(v){ return v < 60 || v % 60 ? (v >= 60 ? fmtMin(v) : v + 'm') : (v / 60) + 'h'; }
+function monotonePath(pts){
+  const n = pts.length;
+  if (n < 2) return '';
+  if (n === 2) return `M${pts[0][0]},${pts[0][1]}L${pts[1][0]},${pts[1][1]}`;
+  const dx = [], m = [], t = [];
+  for (let i = 0; i < n - 1; i++){ dx[i] = pts[i+1][0] - pts[i][0]; m[i] = (pts[i+1][1] - pts[i][1]) / dx[i]; }
+  t[0] = m[0]; t[n-1] = m[n-2];
+  for (let i = 1; i < n - 1; i++){
+    t[i] = m[i-1] * m[i] <= 0 ? 0 : 3 * (dx[i-1] + dx[i]) / ((2 * dx[i] + dx[i-1]) / m[i-1] + (dx[i] + 2 * dx[i-1]) / m[i]);
+  }
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < n - 1; i++){
+    const h = dx[i] / 3;
+    d += `C${pts[i][0] + h},${pts[i][1] + t[i] * h} ${pts[i+1][0] - h},${pts[i+1][1] - t[i+1] * h} ${pts[i+1][0]},${pts[i+1][1]}`;
+  }
+  return d;
+}
+/** Builds the chart model from the selected range: daily points, or weekly averages for long periods. */
+function chartModel(range){
+  const dates = range.dates;
+  if (dates.length <= 92){
+    return { weekly:false, points: dates.map(d => ({ label:d, a:getDay(d, 'a').total, b:getDay(d, 'b').total })) };
+  }
+  const points = [];
+  for (let i = 0; i < dates.length; i += 7){
+    const chunk = dates.slice(i, i + 7);
+    let a = 0, b = 0; chunk.forEach(d => { a += getDay(d, 'a').total; b += getDay(d, 'b').total; });
+    points.push({ label:chunk[0], labelEnd:chunk[chunk.length - 1], a:Math.round(a / chunk.length), b:Math.round(b / chunk.length) });
+  }
+  return { weekly:true, points };
+}
+let chartState = null;
+function renderChart(range, animate){
+  const wrap = $('#chart');
+  const model = chartModel(range);
+  const W = Math.max(260, Math.round(wrap.clientWidth || 320));
+  const H = W < 520 ? 196 : 240;
+  const P = { l:38, r:10, t:12, b:26 };
+  const pts = model.points, n = pts.length;
+  const max = Math.max(0, ...pts.map(p => Math.max(p.a, p.b)));
+  const { top, step } = niceScale(max);
+  const iw = W - P.l - P.r, ih = H - P.t - P.b;
+  const x = i => (n === 1 ? P.l + iw / 2 : P.l + (i * iw) / (n - 1));
+  const y = v => P.t + ih * (1 - v / top);
+  const base = P.t + ih;
+
+  let grid = '', axis = '';
+  for (let v = 0; v <= top; v += step){
+    grid += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}"/>`;
+    axis += `<text x="${P.l - 8}" y="${y(v) + 4}" text-anchor="end">${axisLabel(v)}</text>`;
+  }
+  // X labels: walk back from the latest point and keep a label only if it doesn't collide.
+  const fmtX = p => n <= 7 ? fmtDate(p.label, {weekday:'short'}) : fmtDate(p.label, {day:'numeric', month:'short'});
+  if (n === 1){
+    axis += `<text x="${x(0)}" y="${H - 6}" text-anchor="middle">${esc(fmtDate(pts[0].label, {weekday:'short', day:'numeric', month:'short'}))}</text>`;
+  } else {
+    let leftEdge = Infinity;
+    const minGap = n <= 7 ? 8 : 14;
+    for (let i = n - 1; i >= 0; i--){
+      const text = fmtX(pts[i]), w = text.length * 6.4 + 2, xi = x(i);
+      let anchor = 'middle';
+      if (xi + w / 2 > W - 2) anchor = 'end'; else if (xi - w / 2 < 2) anchor = 'start';
+      const l = anchor === 'end' ? xi - w : anchor === 'start' ? xi : xi - w / 2;
+      const r = l + w;
+      if (r > leftEdge - minGap || l < P.l - 30) continue;
+      axis += `<text x="${xi}" y="${H - 6}" text-anchor="${anchor}">${esc(text)}</text>`;
+      leftEdge = l;
+      if (n > 7) i -= Math.max(0, Math.floor(n / 7) - 1);   // keep spacing even on long ranges
+    }
+  }
+
+  // Draw partner first so the logged-in person's line sits on top.
+  const order = [partnerOf(state.currentUser), state.currentUser];
+  const colors = { a:{ line:'#6A45D9', fill:'#8C6BF0' }, b:{ line:'#C22A63', fill:'#F06A9C' } };
+  let series = '', defs = '';
+  const showDots = n <= 21;
+  order.forEach(u => {
+    const p = pts.map((pt, i) => [+x(i).toFixed(2), +y(pt[u]).toFixed(2)]);
+    defs += `<linearGradient id="fill-${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${colors[u].fill}" stop-opacity="${u === state.currentUser ? .26 : .16}"/><stop offset="1" stop-color="${colors[u].fill}" stop-opacity="0"/></linearGradient>`;
+    if (n > 1){
+      const line = monotonePath(p);
+      series += `<path class="area" d="${line}L${p[n-1][0]},${base}L${p[0][0]},${base}Z" fill="url(#fill-${u})"/>`;
+      series += `<path class="line" data-u="${u}" d="${line}" stroke="${colors[u].line}" stroke-width="${u === state.currentUser ? 2.8 : 2.2}"/>`;
+    }
+    if (showDots || n === 1) p.forEach(([px, py], i) => { if (pts[i][u] > 0 || n === 1) series += `<circle class="dot" cx="${px}" cy="${py}" r="${n === 1 ? 5 : 3}" fill="${colors[u].line}"/>`; });
+  });
+  const empty = max === 0 ? `<text class="empty" x="${P.l + iw / 2}" y="${P.t + ih / 2}" text-anchor="middle">Nothing logged in this period</text>` : '';
+  const hl = order.map(u => `<circle class="hl" data-hl="${u}" r="5.5" fill="${colors[u].line}" stroke="#fff" stroke-width="2.5" cx="-20" cy="-20"/>`).join('');
+
+  wrap.classList.toggle('animate', !!animate && !reduceMotion.matches);
+  wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" aria-hidden="true">
+      <defs>${defs}</defs>
+      <g class="grid">${grid}</g><g class="axis">${axis}</g>
+      ${series}${empty}
+      <line class="guide" x1="0" x2="0" y1="${P.t}" y2="${base}"/>${hl}
+      <rect class="hit" x="${P.l - 6}" y="0" width="${iw + 12}" height="${H}" fill="transparent"/>
+    </svg><div class="tip" id="chart-tip"></div>`;
+  if (animate && !reduceMotion.matches){
+    $$('.line', wrap).forEach(path => { const L = Math.ceil(path.getTotalLength()); path.style.strokeDasharray = L; path.style.strokeDashoffset = L; });
+  }
+  chartState = { pts, x, y, W, model, n, idx:null };
+  wrap.setAttribute('aria-label', `Momentum chart. ${USERS.a.name} ${fmtMin(pts.reduce((t, p) => t + p.a, 0) * (model.weekly ? 7 : 1))}, ${USERS.b.name} ${fmtMin(pts.reduce((t, p) => t + p.b, 0) * (model.weekly ? 7 : 1))} in the period shown. Use arrow keys to inspect days.`);
+  $('#chart-note').textContent = model.weekly ? 'Long period: each point is a weekly average per day.' : n === 1 ? 'One day selected. Momentum lines appear once the period covers two or more days.' : '';
+}
+function chartHover(i){
+  const cs = chartState; if (!cs || !cs.n) return;
+  i = Math.max(0, Math.min(cs.n - 1, i));
+  cs.idx = i;
+  const wrap = $('#chart'), p = cs.pts[i], xi = cs.x(i);
+  wrap.classList.add('is-hover');
+  $('.guide', wrap).setAttribute('x1', xi); $('.guide', wrap).setAttribute('x2', xi);
+  ['a', 'b'].forEach(u => { const c = $(`[data-hl="${u}"]`, wrap); c.setAttribute('cx', xi); c.setAttribute('cy', cs.y(p[u])); });
+  const label = cs.model.weekly
+    ? `${fmtDate(p.label)} to ${fmtDate(p.labelEnd)}, per day`
+    : fmtDate(p.label, {weekday:'short', day:'numeric', month:'short'});
+  const order = [state.currentUser, partnerOf(state.currentUser)];
+  const tip = $('#chart-tip');
+  tip.innerHTML = `<b>${esc(label)}</b>` + order.map(u => `<span class="u-${u}"><span><i></i>${USERS[u].name}</span><em>${fmtMin(p[u])}</em></span>`).join('');
+  const tw = tip.offsetWidth || 150, cw = wrap.clientWidth;
+  const scale = cw / cs.W;
+  let left = xi * scale - tw / 2;
+  left = Math.max(0, Math.min(cw - tw, left));
+  tip.style.left = left + 'px';
+  tip.style.top = '-6px';
+}
+function chartLeave(){ $('#chart').classList.remove('is-hover'); if (chartState) chartState.idx = null; }
+function chartIndexFromEvent(e){
+  const wrap = $('#chart'), cs = chartState; if (!cs) return 0;
+  const rect = wrap.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (cs.W / rect.width);
+  let best = 0, bd = Infinity;
+  for (let i = 0; i < cs.n; i++){ const dd = Math.abs(cs.x(i) - px); if (dd < bd){ bd = dd; best = i; } }
+  return best;
+}
+
+/* ---------- 12. PROGRESS RENDER (single flow) ---------- */
+function renderRangePicker(){
+  const box = $('#range');
+  if (!box.children.length){
+    box.innerHTML = RANGES.map(r => `<button type="button" role="radio" data-range="${r.id}" aria-checked="false">${r.label}</button>`).join('');
+  }
+  $$('[data-range]', box).forEach(b => b.setAttribute('aria-checked', String(b.dataset.range === state.range.id)));
+}
+function requestProgressRender(animate = false){
+  if (state.page !== 'progress' || !state.loaded){ state.progressStale = true; return; }
+  cancelAnimationFrame(requestProgressRender.raf);
+  requestProgressRender.raf = requestAnimationFrame(() => renderProgress(animate));
+}
+function renderProgress(animate = false){
+  state.progressStale = false;
+  renderRangePicker();
+  const range = resolveRange();
+  const st = rangeStats(range);
+  const me = state.currentUser, pt = partnerOf(me);
+  const order = [me, pt];
+
+  const sameYear = range.start.slice(0, 4) === range.end.slice(0, 4);
+  const fStart = fmtDate(range.start, sameYear ? {day:'numeric', month:'short'} : {day:'numeric', month:'short', year:'numeric'});
+  const fEnd = fmtDate(range.end, {day:'numeric', month:'short', year:'numeric'});
+  $('#range-caption').textContent = range.days === 1 ? `${relDay(range.end) === 'Today' ? 'Today, ' : ''}${fmtDate(range.end, {weekday:'long', day:'numeric', month:'long'})}` : `${fStart} to ${fEnd}, ${range.days} days`;
+
+  $('#legend').innerHTML = order.map(u => `<span class="u-${u}"><i></i>${USERS[u].name}</span>`).join('');
+  renderChart(range, animate);
+
+  const js = jointStreak();
+  let together = range.days === 1
+    ? (st.joint ? 'Both of you logged study on this day.' : 'Study days you share will show up here.')
+    : `Both of you studied on ${st.joint} of these ${range.days} days.`;
+  if (js >= 2) together += ` Shared streak: ${js} days.`;
+  $('#together-text').textContent = together;
+
+  const one = range.days === 1;
+  const rows = [
+    ['Total', u => fmtMin(st[u].total)],
+    [one ? 'Logged' : 'Active days', u => one ? (st[u].active ? 'Yes' : '–') : `${st[u].active}<small>/${range.days}</small>`],
+    ...(one ? [] : [['Avg per active day', u => st[u].active ? fmtMin(st[u].avg) : '–']]),
+    ['Current streak', u => { const s = userStreak(u); return s ? `${s}<small> ${s === 1 ? 'day' : 'days'}</small>` : '–'; }],
+  ];
+  $('#cmp').innerHTML = `<thead><tr><th scope="col"><span class="sr-only">Measure</span></th>${order.map(u => `<th scope="col" class="u-${u}"><span>${USERS[u].name}</span></th>`).join('')}</tr></thead>
+    <tbody>${rows.map(([label, fn]) => `<tr><th scope="row">${label}</th>${order.map(u => `<td>${fn(u)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+
+  $('#subj-split').innerHTML = order.map(u => {
+    const s = st[u];
+    if (!s.total) return `<div class="u-${u}"><div class="sb-head">${USERS[u].name}</div><p class="muted-empty">Nothing logged in this period.</p></div>`;
+    const max = Math.max(...SUBJECT_KEYS.map(k => s.subj[k]));
+    return `<div class="u-${u}"><div class="sb-head">${USERS[u].name}</div>${SUBJECTS.map(sub => {
+      const v = s.subj[sub.key], pct = Math.round((v / s.total) * 100);
+      return `<div class="sb-row${sub.key === s.top ? ' is-top' : ''}" title="${sub.full}">
+        <b>${sub.label}</b><div class="sb-track"><div class="sb-fill" style="width:${max ? (v / max) * 100 : 0}%"></div></div>
+        <span class="sb-val">${v ? fmtMin(v) : '–'}${v ? `<small>${pct}%</small>` : ''}</span></div>`;
+    }).join('')}</div>`;
+  }).join('');
+
+  const ins = buildInsights(range, st);
+  $('#insights').innerHTML = (ins.length ? ins : ['Log a few sessions and patterns will appear here.'])
+    .map(t => `<li><svg aria-hidden="true"><use href="#i-star"/></svg><p>${esc(t)}</p></li>`).join('');
+
+  renderRecent();
+}
+function renderRecent(){
+  const list = recentPunches(6);
+  $('#recent').innerHTML = list.length ? list.map(p => {
+    const delta = state.deltas.get(`${p.date}|${p.u}|${p.at}`);
+    let what;
+    if (delta && delta.length) what = delta.map(d => `${SUBJECT_BY_KEY[d.key].label} ${d.diff > 0 ? '+' : '−'}${fmtMin(Math.abs(d.diff))}`).join(', ');
+    else if (delta) what = 'Study log re-saved';
+    else what = p.day.total ? `Logged ${fmtMin(p.day.total)}` : 'Study log updated';
+    const punchDay = todayStr(new Date(p.t));
+    if (p.date !== punchDay) what += ` for ${fmtDate(p.date)}`;
+    return `<li class="u-${p.u}"><span class="avatar">${USERS[p.u].initials}</span>
+      <div style="min-width:0"><strong>${USERS[p.u].name}</strong><p>${esc(what)}</p></div>
+      <time datetime="${esc(p.at)}">${fmtTime(p.at)}<small>${relDay(punchDay)}</small></time></li>`;
+  }).join('') : '<li><p class="muted-empty">No punches saved yet.</p></li>';
+}
+
+/* ---------- 13. NAVIGATION & LIFECYCLE ---------- */
+function showPage(p){
+  if (p !== 'log' && p !== 'progress') p = 'log';
+  const changed = state.page !== p;
+  state.page = p;
+  $$('.page').forEach(el => el.classList.toggle('is-active', el.id === 'page-' + p));
+  $$('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.page === p)));
+  $('.tabs').dataset.active = p;
+  if (p !== 'log') stopVoice(true);
+  if (p === 'progress' && state.loaded && (state.progressStale || changed)) renderProgress(true);
+  if (changed) window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+function updateDayLabels(){
+  const t = state.today || todayStr();
+  const label = fmtDate(t, {weekday:'short', day:'numeric', month:'short'});
+  $('#dayline').textContent = `Study day ${label}`;
+  $('#login-day').textContent = `Study day ${label}`;
+}
+function checkDayChange(){
+  const t = todayStr();
+  if (t === state.today) return;
+  const old = state.today;
+  state.today = t;
+  updateDayLabels();
+  if (!state.currentUser) return;
+  if (state.logDate === old){
+    if (isFormDirty()) toast(`A new study day started. Your unsaved changes are still on ${fmtDate(old)}.`, 'err', 4200);
+    else setLogDate(t);
+  }
+  renderDateControl();
+  updateSaveStatus();
+  requestProgressRender();
+}
+function scheduleRollover(){
+  clearTimeout(state.timers.rollover);
+  const now = new Date(), next = new Date(now);
+  next.setHours(STUDY_DAY_ROLLOVER_HOUR, 0, 0, 0);
+  if (now >= next) next.setDate(next.getDate() + 1);
+  state.timers.rollover = setTimeout(() => { checkDayChange(); scheduleRollover(); }, next - now + 1000);
+  clearInterval(state.timers.tick);
+  state.timers.tick = setInterval(checkDayChange, 60000);   // backup for phones that pause timers
+}
+
+function enterApp(){
+  const me = state.currentUser;
+  document.body.classList.remove('theme-a', 'theme-b');
+  document.body.classList.add('theme-' + me);
+  $('#me-avatar').textContent = USERS[me].initials;
+  $('#me-avatar').className = 'avatar u-' + me;
+  $('#menu-name').textContent = USERS[me].name;
+  state.today = todayStr();
+  state.logDate = state.today;
+  state.loaded = false;
+  try { const r = JSON.parse(localStorage.getItem(RANGE_KEY) || 'null'); if (r && RANGES.some(x => x.id === r.id) && (r.id !== 'custom' || (isDateStr(r.from) && isDateStr(r.to)))) state.range = r; } catch {}
+  updateDayLabels();
+  buildLogCards();
+  renderDateControl();
+  hideVoiceStrip();
+  $('#data-alert').hidden = true;
+  showScreen('app');
+  showPage('log');
+  state.progressStale = true;
+  subscribeData();
+  scheduleRollover();
+}
+/** Loads the whole entries tree once, then Firebase streams only changes. Range filters never refetch. */
+function subscribeData(){
+  state.unsubs.forEach(fn => { try { fn(); } catch {} });
+  state.unsubs = [];
+  $('#data-alert').hidden = true;
+  state.unsubs.push(dbListen('entries', snap => applyEntries(snap.exists() ? snap.val() : {}), err => {
+    $('#data-alert-text').textContent = `Couldn't load study data from Firebase. ${errText(err)}`;
+    $('#data-alert').hidden = false;
+    updateSaveStatus(state.loaded ? undefined : 'Saving is paused until your saved study time loads.', state.loaded ? undefined : 'error');
+  }));
+  state.unsubs.push(dbListen('.info/connected', snap => {
+    const online = snap.val() === true;
+    clearTimeout(state.timers.offline);
+    if (online) $('#net-chip').hidden = true;
+    else state.timers.offline = setTimeout(() => { $('#net-chip').hidden = false; }, 2500);
+  }, () => {}));
+}
+function applyEntries(val){
+  const prev = state.entries, first = !state.loaded;
+  const next = {};
+  if (val && typeof val === 'object') for (const [k, v] of Object.entries(val)) if (isDateStr(k) && v && typeof v === 'object') next[k] = v;
+  const wasDirty = !first && isFormDirty(prev);
+  if (!first){
+    for (const date of Object.keys(next)){
+      for (const u of ['a', 'b']){
+        const nm = next[date][u] && next[date][u]._meta, om = prev[date] && prev[date][u] && prev[date][u]._meta;
+        const na = nm && nm.updatedAt, oa = om && om.updatedAt;
+        if (na && na !== oa && !state.deltas.has(`${date}|${u}|${na}`)) state.deltas.set(`${date}|${u}|${na}`, diffEntries(prev[date] && prev[date][u], next[date][u]));
+      }
+    }
+  }
+  state.entries = next;
+  state.dataVersion++;
+  state.loaded = true;
+  $('#data-alert').hidden = true;
+  if (first || (!wasDirty && !state.saving)) fillMyCard();
+  else { renderPunch('#me-punch', getDay(state.logDate, state.currentUser)); onFormChanged(); }
+  renderPartnerCard();
+  requestProgressRender();
+}
+
+/* Menu */
+function openMenu(){ $('#menu-pop').hidden = false; $('#menu-btn').setAttribute('aria-expanded', 'true'); }
+function closeMenu(){ $('#menu-pop').hidden = true; $('#menu-btn').setAttribute('aria-expanded', 'false'); }
+
+/* ---------- 14. BOOT & EVENT WIRING ---------- */
+function wire(){
+  $$('[data-login-user]').forEach(b => b.addEventListener('click', () => selectLoginUser(b.dataset.loginUser)));
+  $('#login-btn').addEventListener('click', doLogin);
+  $('#login-create').addEventListener('click', () => openSetup('create', state.loginUser));
+  $$('[data-setup-user]').forEach(b => b.addEventListener('click', () => { chooseSetupUser(b.dataset.setupUser); newPin.focus(); }));
+  $('#setup-btn').addEventListener('click', doSetup);
+  $('#setup-back').addEventListener('click', setupBack);
+
+  $('#menu-btn').addEventListener('click', e => { e.stopPropagation(); $('#menu-pop').hidden ? openMenu() : closeMenu(); });
+  document.addEventListener('click', e => { if (!e.target.closest('.menu')) closeMenu(); });
+  $('#menu-reset').addEventListener('click', () => {
+    closeMenu();
+    if (isFormDirty() && !confirm('You have unsaved study time. Continue to Reset PIN?')) return;
+    openSetup('reset', state.currentUser);
+  });
+  $('#menu-logout').addEventListener('click', logout);
+  let taps = 0, tapTimer;
+  $('#brand').addEventListener('click', () => {
+    taps++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { taps = 0; }, 900);
+    if (taps === 3){ taps = 0; const m = $('#brand-mark'); m.classList.remove('is-spun'); void m.getBoundingClientRect(); m.classList.add('is-spun'); toast('Minutes compound too.'); setTimeout(() => m.classList.remove('is-spun'), 1000); }
+  });
+
+  $$('.tab').forEach(t => t.addEventListener('click', () => showPage(t.dataset.page)));
+  $('.tabs').addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const next = state.page === 'log' ? 'progress' : 'log';
+    showPage(next); $('#tab-' + next).focus();
+  });
+
+  $('#date-prev').addEventListener('click', () => requestDateChange(addDays(state.logDate, -1)));
+  $('#date-next').addEventListener('click', () => requestDateChange(addDays(state.logDate, 1)));
+  $('#date-today').addEventListener('click', () => requestDateChange(state.today));
+  $('#log-date').addEventListener('change', e => requestDateChange(e.target.value));
+  $('#log-date').addEventListener('click', e => { try { e.target.showPicker && e.target.showPicker(); } catch {} });
+
+  $('#voice-btn').addEventListener('click', startVoice);
+  $('#voice-close').addEventListener('click', () => { stopVoice(); hideVoiceStrip(); });
+  $('#voice-undo').addEventListener('click', () => {
+    const u = state.voice.undo; if (!u) return;
+    SUBJECT_KEYS.forEach(k => writeInput(k, u[k], true));
+    onFormChanged(); hideVoiceStrip();
+  });
+  $('#data-retry').addEventListener('click', subscribeData);
+
+  const dlg = $('#reason-dialog'), rin = $('#reason-input');
+  rin.addEventListener('input', () => { $('#reason-count').textContent = `${rin.value.length}/180`; $('#reason-err').textContent = ''; });
+  $('#reason-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const r = rin.value.trim();
+    if (r.length < 4){ $('#reason-err').textContent = 'Write at least 4 characters.'; rin.focus(); return; }
+    closeReason(r);
+  });
+  $('#reason-cancel').addEventListener('click', () => closeReason(''));
+  dlg.addEventListener('cancel', e => { e.preventDefault(); closeReason(''); });
+
+  $('#range').addEventListener('click', e => {
+    const b = e.target.closest('[data-range]'); if (!b) return;
+    const id = b.dataset.range;
+    if (id === 'custom'){
+      const cur = resolveRange();
+      $('#custom-from').value = state.range.id === 'custom' ? state.range.from : cur.start;
+      $('#custom-to').value = state.range.id === 'custom' ? state.range.to : cur.end;
+      $('#custom-from').max = $('#custom-to').max = state.today;
+      $('#custom').hidden = false; $('#custom-err').textContent = '';
+      $$('[data-range]').forEach(x => x.setAttribute('aria-checked', String(x === b)));
+      return;
+    }
+    $('#custom').hidden = true;
+    state.range = { id, from:null, to:null };
+    localStorage.setItem(RANGE_KEY, JSON.stringify(state.range));
+    renderProgress(true);
+  });
+  $('#custom-apply').addEventListener('click', () => {
+    const from = $('#custom-from').value, to = $('#custom-to').value;
+    const err = validateCustom(from, to);
+    $('#custom-err').textContent = err;
+    if (err) return;
+    state.range = { id:'custom', from, to };
+    localStorage.setItem(RANGE_KEY, JSON.stringify(state.range));
+    renderProgress(true);
+  });
+
+  const chart = $('#chart');
+  chart.addEventListener('pointermove', e => chartHover(chartIndexFromEvent(e)));
+  chart.addEventListener('pointerdown', e => chartHover(chartIndexFromEvent(e)));
+  chart.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') chartLeave(); });
+  document.addEventListener('pointerdown', e => { if (!e.target.closest('#chart')) chartLeave(); });
+  chart.addEventListener('keydown', e => {
+    if (!chartState) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){ e.preventDefault(); chartHover((chartState.idx ?? chartState.n - 1) + (e.key === 'ArrowRight' ? 1 : -1)); }
+    if (e.key === 'Escape') chartLeave();
+  });
+  chart.addEventListener('blur', chartLeave);
+  let lastW = 0;
+  new ResizeObserver(entries => {
+    const w = Math.round(entries[0].contentRect.width);
+    if (w && Math.abs(w - lastW) > 2 && state.page === 'progress' && state.loaded){ lastW = w; renderChart(resolveRange(), false); }
+  }).observe(chart);
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkDayChange(); });
+  window.addEventListener('beforeunload', e => { if (isFormDirty() || state.saving){ e.preventDefault(); e.returnValue = ''; } });
+  $('#fatal-retry').addEventListener('click', () => location.reload());
+  if (reduceMotion.matches) $$('svg').forEach(s => { try { s.pauseAnimations && s.pauseAnimations(); } catch {} });
+}
+
+async function boot(){
+  state.today = todayStr();
+  updateDayLabels();
+  wire();
+  try { await connectFirebase(); }
+  catch(e){ showFatal("StudyBuddy couldn't start", "The Firebase library didn't load, so your study data can't be reached. Check the connection and try again.", e); return; }
+
+  const saved = sessionStorage.getItem(SESSION_KEY);
+  if (saved === 'a' || saved === 'b'){
+    state.currentUser = saved;
+    enterApp();
+    ensurePinsKnown().catch(() => {});
+    return;
+  }
+  try { await ensurePinsKnown(); }
+  catch(e){ showFatal("Couldn't reach StudyBuddy", "Firebase didn't respond while loading profiles. Your data is safe; this is a connection problem.", e); return; }
+  if (!state.pinsExist.a && !state.pinsExist.b) openSetup('create', null);
+  else openLogin();
+}
+boot();
+</script>
+</body>
+</html>
